@@ -38,6 +38,8 @@ impl<'p> Parser<'p> {
                 buffer.remove(0);
                 buffer.pop();
 
+                lexer.next();
+
                 Statement::Expression(Expression::String(buffer))
             },
             TokenType::Integer => {
