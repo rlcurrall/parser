@@ -16,4 +16,6 @@ fn main() {
         eprintln!("Error: {}", error);
         std::process::exit(1);
     }
+
+    println!("{:#?}", program.unwrap());
 }
