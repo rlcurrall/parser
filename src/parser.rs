@@ -16,14 +16,22 @@ impl<'p> Parser<'p> {
 
     pub fn next(&mut self) -> Result<Statement, ParserError> {
         if let Some(token) = self.lexer.next() {
-            self.match_token(token)
+            Parser::match_token(&mut self.lexer, token)
         } else {
             Err(ParserError::Unknown)
         }
     }
 
-    pub fn match_token(&mut self, token: Token) -> Result<Statement, ParserError> {
-        Ok(match token.kind {
+    pub fn match_token(lexer: &mut Lexer, token: Token<'p>) -> Result<Statement, ParserError<'p>> {
+        let kind = token.kind;
+
+        Ok(match kind {
+            TokenType::OpenTag => {
+                Statement::OpenTag
+            },
+            TokenType::Echo => {
+                Statement::Echo
+            },
             TokenType::String => {
                 let mut buffer: String = token.slice.to_string();
 
@@ -38,7 +46,9 @@ impl<'p> Parser<'p> {
             TokenType::Float => {
                 Statement::Expression(Expression::Float(token.slice.parse::<f64>()?))
             }
-            _ => return Err(ParserError::Unknown)
+            _ => {
+                return Err(ParserError::UnexpectedToken(kind, token.slice))
+            }
         })
     }
 
@@ -46,7 +56,7 @@ impl<'p> Parser<'p> {
         let mut program = Vec::new();
 
         while let Some(token) = self.lexer.next() {
-            let statement = self.match_token(token)?;
+            let statement = Parser::match_token(&mut self.lexer, token)?;
 
             program.push(statement);
         }
