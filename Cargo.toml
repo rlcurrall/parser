@@ -1,0 +1,13 @@
+[package]
+name = "tusk_parser"
+version = "0.1.0"
+edition = "2018"
+authors = ["Ryan Chandler <support@ryangjchandler.co.uk>"]
+license = "MIT"
+description = "The parser component of Tusk."
+categories = ["compilers", "parsing", "text-processing"]
+repository = "https://github.com/tuskphp/parser"
+keywords = ["parser", "parsing", "php"]
+
+[dependencies]
+tusk_lexer = "0.2.*"
