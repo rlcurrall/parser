@@ -22,7 +22,7 @@ impl<'p> Parser<'p> {
         }
     }
 
-    pub fn match_token(lexer: &mut Lexer, token: Token<'p>) -> Result<Statement, ParserError<'p>> {
+    fn match_token(lexer: &mut Lexer<'p>, token: Token<'p>) -> Result<Statement, ParserError<'p>> {
         let kind = token.kind;
 
         Ok(match kind {
@@ -30,7 +30,11 @@ impl<'p> Parser<'p> {
                 Statement::OpenTag
             },
             TokenType::Echo => {
-                Statement::Echo
+                let expression = Parser::parse_expression(lexer)?;
+
+                Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
+
+                Statement::Echo(expression)
             },
             TokenType::String => {
                 let mut buffer: String = token.slice.to_string();
@@ -52,6 +56,52 @@ impl<'p> Parser<'p> {
                 return Err(ParserError::UnexpectedToken(kind, token.slice))
             }
         })
+    }
+
+    fn expect_token(lexer: &mut Lexer<'p>, kind: TokenType<'p>, slice: &'p str) -> Result<bool, ParserError<'p>> {
+        let next = lexer.next();
+
+        if next.is_none() {
+            Err(ParserError::UnexpectedEndOfFile)
+        } else {
+            let token = next.unwrap();
+
+            if token.kind != kind {
+                Err(ParserError::ExpectedToken {
+                    expected_type: kind,
+                    expected_slice: slice,
+                    got_type: token.kind,
+                    got_slice: token.slice,
+                })
+            } else {
+                Ok(true)
+            }
+        }
+    }
+
+    fn parse_expression(lexer: &mut Lexer<'p>) -> Result<Expression, ParserError<'p>> {
+        let next = lexer.next();
+
+        if next.is_none() {
+            return Err(ParserError::UnexpectedEndOfFile)
+        }
+
+        let next = next.unwrap();
+
+        let mut lhs = match next.kind {
+            TokenType::String => {
+                Expression::String(next.slice.to_owned())
+            },
+            TokenType::Integer => {
+                Expression::Integer(next.slice.parse::<i64>()?)
+            },
+            TokenType::Float => {
+                Expression::Float(next.slice.parse::<f64>()?)
+            }
+            _ => unimplemented!()
+        };
+
+        Ok(lhs)
     }
 
     pub fn all(&mut self) -> Result<Vec<Statement>, ParserError> {
