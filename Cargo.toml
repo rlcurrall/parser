@@ -11,3 +11,4 @@ keywords = ["parser", "parsing", "php"]
 
 [dependencies]
 tusk_lexer = "0.2.*"
+thiserror = "1.0.*"
