@@ -1,3 +1,3 @@
-pub mod parser;
+mod parser;
 
-pub use parser::{states, Parser};
+pub use parser::Parser;
