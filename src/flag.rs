@@ -9,3 +9,8 @@ pub enum Flag {
     Static,
     Abstract,
 }
+
+pub trait Flaggable {
+    fn add_flag(&mut self, flag: Flag);
+    fn has_flag(&self, flag: Flag) -> bool;
+}

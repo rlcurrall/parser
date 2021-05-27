@@ -1,6 +1,6 @@
 use crate::Expression;
 use crate::Statement;
-use crate::Flag;
+use crate::{Flag, Flaggable};
 
 use serde::Serialize;
 
@@ -29,9 +29,16 @@ impl Function {
             flags
         }
     }
+}
 
-    pub fn add_flag(&mut self, flag: Flag) {
+impl Flaggable for Function {
+
+    fn add_flag(&mut self, flag: Flag) {
         self.flags.push(flag)
+    }
+
+    fn has_flag(&self, flag: Flag) -> bool {
+        self.flags.contains(&flag)
     }
 }
 

@@ -2,7 +2,7 @@
 
 class Example {
 
-    function example() {
-        
+    public static function example() {
+
     }
 }

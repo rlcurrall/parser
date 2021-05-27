@@ -17,6 +17,7 @@ pub use function::FunctionParameter;
 pub use parser::Parser;
 pub use statement::Statement;
 pub use flag::Flag;
+pub use flag::Flaggable;
 
 #[wasm_bindgen]
 #[no_mangle]

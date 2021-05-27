@@ -3,6 +3,7 @@ use crate::Expression;
 use crate::ParserError;
 use crate::Statement;
 use crate::{Function, FunctionParameter};
+use crate::{Flag, Flaggable};
 
 use std::iter::Iterator;
 use tusk_lexer::{Lexer, Token, TokenType};
@@ -48,6 +49,39 @@ impl<'p> Parser<'p> {
                 Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
 
                 Statement::Return(expression)
+            }
+            flag @ (TokenType::Public | TokenType::Protected | TokenType::Private | TokenType::Final | TokenType::Abstract | TokenType::Static) => {
+                let next = lexer.next();
+
+                if next.is_none() {
+                    return Err(ParserError::UnexpectedEndOfFile)
+                }
+
+                let mut statement = Parser::match_token(lexer, next.unwrap())?;
+
+                println!("{:?}", statement);
+
+                let flag_type = match flag {
+                    TokenType::Public => Flag::Public,
+                    TokenType::Protected => Flag::Protected,
+                    TokenType::Private => Flag::Private,
+                    TokenType::Final => Flag::Final,
+                    TokenType::Abstract => Flag::Abstract,
+                    TokenType::Static => Flag::Static,
+                    _ => unreachable!()
+                };
+
+                match statement {
+                    Statement::Function(ref mut function) => {
+                        function.add_flag(flag_type)
+                    }
+                    Statement::Class(ref mut class) => {
+                        class.add_flag(flag_type)
+                    }
+                    _ => return Err(ParserError::Unknown)
+                }
+
+                statement
             }
             TokenType::Class => {
                 let name = Parser::expect_token(lexer, TokenType::Identifier, "")?;
@@ -147,7 +181,7 @@ impl<'p> Parser<'p> {
                     }
                 }
 
-                Statement::Class(Class::new(name.slice.to_owned(), implements, extends, body))
+                Statement::Class(Class::new(name.slice.to_owned(), implements, extends, body, Vec::new()))
             }
             TokenType::Function => {
                 let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
