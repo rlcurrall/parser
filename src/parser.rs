@@ -4,23 +4,28 @@ use crate::ParserError;
 use crate::{Function, FunctionParameter};
 
 use tusk_lexer::{Lexer, Token, TokenType};
+use std::iter::Iterator;
 
 pub struct Parser<'p> {
     lexer: Lexer<'p>
+}
+
+impl<'p> Iterator for Parser<'p> {
+    type Item = Result<Statement, ParserError<'p>>;
+
+    fn next(&mut self) -> Option<Result<Statement, ParserError<'p>>> {
+        if let Some(token) = self.lexer.next() {
+            Some(Parser::match_token(&mut self.lexer, token))
+        } else {
+            Some(Err(ParserError::Unknown))
+        }
+    }
 }
 
 impl<'p> Parser<'p> {
 
     pub fn new(lexer: Lexer<'p>) -> Self {
         Self { lexer }
-    }
-
-    pub fn next(&mut self) -> Result<Statement, ParserError> {
-        if let Some(token) = self.lexer.next() {
-            Parser::match_token(&mut self.lexer, token)
-        } else {
-            Err(ParserError::Unknown)
-        }
     }
 
     fn match_token(lexer: &mut Lexer<'p>, token: Token<'p>) -> Result<Statement, ParserError<'p>> {
@@ -37,6 +42,13 @@ impl<'p> Parser<'p> {
 
                 Statement::Echo(expression)
             },
+            TokenType::Return => {
+                let expression = Parser::parse_expression(lexer)?;
+
+                Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
+
+                Statement::Return(expression)
+            },
             TokenType::Function => {
                 let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
 
@@ -45,16 +57,28 @@ impl<'p> Parser<'p> {
                 let mut parameters: Vec<FunctionParameter> = Vec::new();
 
                 loop {
-                    let next = lexer.next();
+                    let mut next = lexer.next();
 
-                    if matches!(next, Some(Token { kind: TokenType::RightParen, .. })) {
-                        break;
+                    match next {
+                        // break when finding a ), no more parameters
+                        Some(Token { kind: TokenType::RightParen, .. }) => break,
+                        // consume trailing commas..
+                        Some(Token { kind: TokenType::Comma, .. }) => {
+                            next = lexer.next();
+                        },
+                        Some(Token { kind: TokenType::Identifier | TokenType::Variable, .. }) => (),
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => {
+                            let t = next.unwrap();
+
+                            return Err(ParserError::UnexpectedToken(t.kind, t.slice));
+                        }
                     }
 
                     let mut name = String::new();
                     let mut type_hint = None;
 
-                    match lexer.next() {
+                    match next {
                         Some(t @ Token { kind: TokenType::Identifier, .. }) => {
                             type_hint = Some(t.slice.to_string())
                         },
@@ -67,6 +91,24 @@ impl<'p> Parser<'p> {
                         None => return Err(ParserError::UnexpectedEndOfFile),
                         _ => return Err(ParserError::Unknown)
                     }
+
+                    if type_hint.is_some() {
+                        let variable = Parser::expect_token(lexer, TokenType::Variable, "")?;
+
+                        let mut buffer: String = variable.slice.to_string();
+                        buffer.remove(0);
+
+                        name = buffer;
+                    }
+
+                    let next = lexer.next();
+                    let mut default = None;
+
+                    if matches!(next, Some(Token { kind: TokenType::Equals, .. })) {
+                        default = Some(Parser::parse_expression(lexer)?);
+                    }
+
+                    parameters.push(FunctionParameter::new(name, type_hint, default))
                 }
 
                 let mut return_type_hint = None;
@@ -89,7 +131,21 @@ impl<'p> Parser<'p> {
                     })
                 }
 
-                let body = Vec::new();
+                let mut body = Vec::new();
+
+                loop {
+                    let next = lexer.next();
+
+                    match next {
+                        Some(Token { kind: TokenType::RightBrace, .. }) => break,
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => {
+                            let statement = Parser::match_token(lexer, next.unwrap())?;
+
+                            body.push(statement);
+                        }
+                    }
+                }
 
                 Statement::Function(Function::new(
                     identifier.slice.to_owned(),
@@ -123,11 +179,7 @@ impl<'p> Parser<'p> {
     fn expect_token(lexer: &mut Lexer<'p>, kind: TokenType, slice: &'p str) -> Result<Token<'p>, ParserError<'p>> {
         let next = lexer.next();
 
-        if next.is_none() {
-            Err(ParserError::UnexpectedEndOfFile)
-        } else {
-            let token = next.unwrap();
-
+        if let Some(token) = next {
             if token.kind != kind {
                 Err(ParserError::ExpectedToken {
                     expected_type: kind,
@@ -138,6 +190,8 @@ impl<'p> Parser<'p> {
             } else {
                 Ok(token)
             }
+        } else {
+            Err(ParserError::UnexpectedEndOfFile)
         }
     }
 
@@ -150,9 +204,14 @@ impl<'p> Parser<'p> {
 
         let next = next.unwrap();
 
-        let mut lhs = match next.kind {
+        let lhs = match next.kind {
             TokenType::String => {
-                Expression::String(next.slice.to_owned())
+                let mut buffer: String = next.slice.to_owned();
+                // remove the quotes
+                buffer.remove(0);
+                buffer.pop();
+
+                Expression::String(buffer)
             },
             TokenType::Integer => {
                 Expression::Integer(next.slice.parse::<i64>()?)
@@ -166,6 +225,7 @@ impl<'p> Parser<'p> {
         Ok(lhs)
     }
 
+    #[allow(clippy::while_let_on_iterator)]
     pub fn all(&mut self) -> Result<Vec<Statement>, ParserError> {
         let mut program = Vec::new();
 

@@ -5,6 +5,7 @@ use crate::Function;
 pub enum Statement {
     OpenTag,
     Echo(Expression),
+    Return(Expression),
     Expression(Expression),
     Function(Function)
 }

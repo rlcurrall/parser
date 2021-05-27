@@ -10,7 +10,7 @@ repository = "https://github.com/tuskphp/parser"
 keywords = ["parser", "parsing", "php"]
 
 [dependencies]
-tusk_lexer = "0.3.*"
+tusk_lexer = "0.3.3"
 thiserror = "1.0.*"
 
 [[bin]]
