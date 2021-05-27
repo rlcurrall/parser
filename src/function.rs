@@ -1,7 +1,9 @@
 use crate::Expression;
 use crate::Statement;
 
-#[derive(Debug, Clone, PartialEq)]
+use serde::Serialize;
+
+#[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct Function {
     name: String,
     parameters: Vec<FunctionParameter>,
@@ -25,7 +27,7 @@ impl Function {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct FunctionParameter {
     name: String,
     type_hint: Option<String>,

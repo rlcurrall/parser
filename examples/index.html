@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>tusk_parser wasm</title>
+</head>
+
+<body>
+    <button>Generate</button>
+    <textarea style="width: 100vw; height: 100vh; resize: none" id="editor"></textarea>
+
+    <script type="module">
+        import init, { parse } from "/pkg/tusk_parser.js";
+
+        init();
+
+        document.querySelector('button').addEventListener('click', () => {
+            const ast = parse(document.querySelector('textarea').value)
+
+            console.log(ast)
+        })
+    </script>
+</body>
+
+</html>

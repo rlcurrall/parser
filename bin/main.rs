@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+use serde::Serialize;
 use tusk_lexer::Lexer;
 use tusk_parser::Parser;
 
@@ -24,5 +25,5 @@ fn main() {
         std::process::exit(1);
     }
 
-    println!("{:#?}", program.unwrap());
+    println!("{:#?}", serde_json::to_string(&program.unwrap()).unwrap());
 }

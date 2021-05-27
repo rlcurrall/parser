@@ -1,7 +1,9 @@
 use crate::Expression;
 use crate::Function;
 
-#[derive(Debug, Clone, PartialEq)]
+use serde::{Serialize};
+
+#[derive(Serialize, Debug, Clone, PartialEq)]
 pub enum Statement {
     OpenTag,
     Echo(Expression),
