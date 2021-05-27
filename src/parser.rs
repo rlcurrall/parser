@@ -6,6 +6,8 @@ use crate::{Function, FunctionParameter};
 use std::iter::Iterator;
 use tusk_lexer::{Lexer, Token, TokenType};
 
+type Program = Vec<Statement>;
+
 pub struct Parser<'p> {
     lexer: Lexer<'p>,
 }
@@ -265,7 +267,7 @@ impl<'p> Parser<'p> {
     }
 
     #[allow(clippy::while_let_on_iterator)]
-    pub fn all(&mut self) -> Result<Vec<Statement>, ParserError> {
+    pub fn all(&mut self) -> Result<Program, ParserError> {
         let mut program = Vec::new();
 
         while let Some(token) = self.lexer.next() {
