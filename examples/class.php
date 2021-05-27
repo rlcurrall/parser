@@ -7,6 +7,10 @@ class Example {
     }
 
     protected function test() {
+
+    }
+
+    protected function example() {
         
     }
 }

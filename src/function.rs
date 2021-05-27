@@ -6,7 +6,7 @@ use serde::Serialize;
 
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct Function {
-    name: String,
+    pub name: String,
     parameters: Vec<FunctionParameter>,
     body: Vec<Statement>,
     return_type_hint: Option<String>,

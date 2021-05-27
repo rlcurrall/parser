@@ -59,8 +59,6 @@ impl<'p> Parser<'p> {
 
                 let mut statement = Parser::match_token(lexer, next.unwrap())?;
 
-                println!("{:?}", statement);
-
                 let flag_type = match flag {
                     TokenType::Public => Flag::Public,
                     TokenType::Protected => Flag::Protected,
@@ -177,7 +175,20 @@ impl<'p> Parser<'p> {
                             let statement = Parser::match_token(lexer, next.unwrap())?;
 
                             match &statement {
-                                Statement::Function(..) => (),
+                                Statement::Function(Function { name: function_name, .. }) => {
+                                    let matches: Vec<Statement> = body.clone().into_iter().filter(|statement| {
+                                        match statement {
+                                            Statement::Function(function) => {
+                                                return function.name == *function_name
+                                            },
+                                            _ => false
+                                        }
+                                    }).collect();
+
+                                    if matches.is_empty() {
+                                        return Err(ParserError::MethodAlreadyExists(function_name.clone()))
+                                    }
+                                },
                                 _ => return Err(ParserError::UnexpectedStatement(statement))
                             };
 
