@@ -16,14 +16,14 @@ pub enum ParserError<'pe> {
 
     #[error("Unexpected token {expected_type:?} ({expected_slice}), got {got_type:?} ({got_slice})")]
     ExpectedToken {
-        expected_type: TokenType<'pe>,
+        expected_type: TokenType,
         expected_slice: &'pe str,
-        got_type: TokenType<'pe>,
+        got_type: TokenType,
         got_slice: &'pe str,
     },
     
     #[error("Unexpected token {0:?} ({1}).")]
-    UnexpectedToken(TokenType<'pe>, &'pe str),
+    UnexpectedToken(TokenType, &'pe str),
 
     #[error("Unexpected end of file.")]
     UnexpectedEndOfFile,

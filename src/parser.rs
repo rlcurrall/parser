@@ -1,6 +1,7 @@
 use crate::Statement;
 use crate::Expression;
 use crate::ParserError;
+use crate::Function;
 
 use tusk_lexer::{Lexer, Token, TokenType};
 
@@ -36,6 +37,18 @@ impl<'p> Parser<'p> {
 
                 Statement::Echo(expression)
             },
+            TokenType::Function => {
+                let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
+
+                let parameters = Vec::new();
+                let body = Vec::new();
+
+                Statement::Function(Function::User {
+                    name: identifier.slice.to_owned(),
+                    parameters: parameters,
+                    body: body,
+                })
+            },
             TokenType::String => {
                 let mut buffer: String = token.slice.to_string();
 
@@ -58,7 +71,7 @@ impl<'p> Parser<'p> {
         })
     }
 
-    fn expect_token(lexer: &mut Lexer<'p>, kind: TokenType<'p>, slice: &'p str) -> Result<bool, ParserError<'p>> {
+    fn expect_token(lexer: &mut Lexer<'p>, kind: TokenType, slice: &'p str) -> Result<Token<'p>, ParserError<'p>> {
         let next = lexer.next();
 
         if next.is_none() {
@@ -74,7 +87,7 @@ impl<'p> Parser<'p> {
                     got_slice: token.slice,
                 })
             } else {
-                Ok(true)
+                Ok(token)
             }
         }
     }
