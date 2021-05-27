@@ -7,6 +7,7 @@ mod expression;
 mod function;
 mod parser;
 mod statement;
+mod flag;
 
 pub use class::Class;
 pub use error::ParserError;
@@ -15,6 +16,7 @@ pub use function::Function;
 pub use function::FunctionParameter;
 pub use parser::Parser;
 pub use statement::Statement;
+pub use flag::Flag;
 
 #[wasm_bindgen]
 #[no_mangle]

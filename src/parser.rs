@@ -128,9 +128,26 @@ impl<'p> Parser<'p> {
                     }
                 }
 
-                Parser::expect_token(lexer, TokenType::RightBrace, "}")?;
+                let mut body: Vec<Statement> = Vec::new();
+                
+                loop {
+                    let next = lexer.next();
 
-                Statement::Class(Class::new(name.slice.to_owned(), implements, extends))
+                    match next {
+                        Some(Token {
+                            kind: TokenType::RightBrace,
+                            ..
+                        }) => break,
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => {
+                            let statement = Parser::match_token(lexer, next.unwrap())?;
+
+                            body.push(statement);
+                        }
+                    }
+                }
+
+                Statement::Class(Class::new(name.slice.to_owned(), implements, extends, body))
             }
             TokenType::Function => {
                 let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
@@ -279,6 +296,7 @@ impl<'p> Parser<'p> {
                     parameters,
                     body,
                     return_type_hint,
+                    Vec::new()
                 ))
             }
             TokenType::String => {
