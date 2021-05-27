@@ -1,5 +1,6 @@
 use crate::Statement;
 use crate::Function;
+use crate::Flag;
 
 use std::convert::From;
 use std::num::ParseFloatError;
@@ -16,6 +17,9 @@ pub enum ParserError<'pe> {
     IntegerParserError,
     #[error("Failed to convert a numeric string into a float.")]
     FloatParserError,
+
+    #[error("Flag {0:?} is not allowed.")]
+    FlagNotAllowed(Flag),
 
     #[error("Unexpected statement {0:?}.")]
     UnexpectedStatement(Statement),

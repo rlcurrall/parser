@@ -35,4 +35,8 @@ impl Flaggable for Class {
     fn has_flag(&self, flag: Flag) -> bool {
         self.flags.contains(&flag)
     }
+
+    fn has_flags(&self) -> bool {
+        !self.flags.is_empty()
+    }
 }

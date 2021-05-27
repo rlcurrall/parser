@@ -13,4 +13,5 @@ pub enum Flag {
 pub trait Flaggable {
     fn add_flag(&mut self, flag: Flag);
     fn has_flag(&self, flag: Flag) -> bool;
+    fn has_flags(&self) -> bool;
 }
