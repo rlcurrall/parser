@@ -1,6 +1,6 @@
 <?php
 
-class Example extends Another implements Testing {
+class Example implements Testing extends Another {
 
     
 }

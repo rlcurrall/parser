@@ -62,6 +62,12 @@ impl<'p> Parser<'p> {
                             kind: TokenType::Extends,
                             ..
                         }) => {
+                            if implements.len() >= 1 {
+                                let t = next.unwrap();
+
+                                return Err(ParserError::UnexpectedToken(t.kind, t.slice));
+                            }
+
                             let identifier =
                                 Parser::expect_token(lexer, TokenType::Identifier, "")?;
 
