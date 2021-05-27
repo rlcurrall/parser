@@ -7,5 +7,5 @@ pub enum Statement {
     Echo(Expression),
     Return(Expression),
     Expression(Expression),
-    Function(Function)
+    Function(Function),
 }

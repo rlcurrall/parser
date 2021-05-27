@@ -10,8 +10,18 @@ pub struct Function {
 }
 
 impl Function {
-    pub fn new(name: String, parameters: Vec<FunctionParameter>, body: Vec<Statement>, return_type_hint: Option<String>) -> Self {
-        Self { name, parameters, body, return_type_hint }
+    pub fn new(
+        name: String,
+        parameters: Vec<FunctionParameter>,
+        body: Vec<Statement>,
+        return_type_hint: Option<String>,
+    ) -> Self {
+        Self {
+            name,
+            parameters,
+            body,
+            return_type_hint,
+        }
     }
 }
 
@@ -24,6 +34,10 @@ pub struct FunctionParameter {
 
 impl FunctionParameter {
     pub fn new(name: String, type_hint: Option<String>, default: Option<Expression>) -> Self {
-        Self { name, type_hint, default }
+        Self {
+            name,
+            type_hint,
+            default,
+        }
     }
 }

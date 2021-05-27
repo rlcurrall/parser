@@ -1,13 +1,13 @@
-use crate::Statement;
 use crate::Expression;
 use crate::ParserError;
+use crate::Statement;
 use crate::{Function, FunctionParameter};
 
-use tusk_lexer::{Lexer, Token, TokenType};
 use std::iter::Iterator;
+use tusk_lexer::{Lexer, Token, TokenType};
 
 pub struct Parser<'p> {
-    lexer: Lexer<'p>
+    lexer: Lexer<'p>,
 }
 
 impl<'p> Iterator for Parser<'p> {
@@ -23,7 +23,6 @@ impl<'p> Iterator for Parser<'p> {
 }
 
 impl<'p> Parser<'p> {
-
     pub fn new(lexer: Lexer<'p>) -> Self {
         Self { lexer }
     }
@@ -32,23 +31,21 @@ impl<'p> Parser<'p> {
         let kind = token.kind;
 
         Ok(match kind {
-            TokenType::OpenTag => {
-                Statement::OpenTag
-            },
+            TokenType::OpenTag => Statement::OpenTag,
             TokenType::Echo => {
                 let expression = Parser::parse_expression(lexer)?;
 
                 Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
 
                 Statement::Echo(expression)
-            },
+            }
             TokenType::Return => {
                 let expression = Parser::parse_expression(lexer)?;
 
                 Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
 
                 Statement::Return(expression)
-            },
+            }
             TokenType::Function => {
                 let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
 
@@ -61,12 +58,21 @@ impl<'p> Parser<'p> {
 
                     match next {
                         // break when finding a ), no more parameters
-                        Some(Token { kind: TokenType::RightParen, .. }) => break,
+                        Some(Token {
+                            kind: TokenType::RightParen,
+                            ..
+                        }) => break,
                         // consume trailing commas..
-                        Some(Token { kind: TokenType::Comma, .. }) => {
+                        Some(Token {
+                            kind: TokenType::Comma,
+                            ..
+                        }) => {
                             next = lexer.next();
-                        },
-                        Some(Token { kind: TokenType::Identifier | TokenType::Variable, .. }) => (),
+                        }
+                        Some(Token {
+                            kind: TokenType::Identifier | TokenType::Variable,
+                            ..
+                        }) => (),
                         None => return Err(ParserError::UnexpectedEndOfFile),
                         _ => {
                             let t = next.unwrap();
@@ -79,17 +85,29 @@ impl<'p> Parser<'p> {
                     let mut type_hint = None;
 
                     match next {
-                        Some(t @ Token { kind: TokenType::Identifier, .. }) => {
-                            type_hint = Some(t.slice.to_string())
-                        },
-                        Some(t @ Token { kind: TokenType::Variable, .. }) => {
+                        Some(
+                            t
+                            @
+                            Token {
+                                kind: TokenType::Identifier,
+                                ..
+                            },
+                        ) => type_hint = Some(t.slice.to_string()),
+                        Some(
+                            t
+                            @
+                            Token {
+                                kind: TokenType::Variable,
+                                ..
+                            },
+                        ) => {
                             let mut buffer: String = t.slice.to_string();
                             buffer.remove(0);
 
                             name = buffer;
-                        },
+                        }
                         None => return Err(ParserError::UnexpectedEndOfFile),
-                        _ => return Err(ParserError::Unknown)
+                        _ => return Err(ParserError::Unknown),
                     }
 
                     if type_hint.is_some() {
@@ -104,7 +122,13 @@ impl<'p> Parser<'p> {
                     let next = lexer.next();
                     let mut default = None;
 
-                    if matches!(next, Some(Token { kind: TokenType::Equals, .. })) {
+                    if matches!(
+                        next,
+                        Some(Token {
+                            kind: TokenType::Equals,
+                            ..
+                        })
+                    ) {
                         default = Some(Parser::parse_expression(lexer)?);
                     }
 
@@ -114,13 +138,27 @@ impl<'p> Parser<'p> {
                 let mut return_type_hint = None;
                 let next = lexer.next();
 
-                if matches!(next, Some(Token { kind: TokenType::Colon, .. })) {
+                if matches!(
+                    next,
+                    Some(Token {
+                        kind: TokenType::Colon,
+                        ..
+                    })
+                ) {
                     let return_type_token = Parser::expect_token(lexer, TokenType::Identifier, "")?;
 
                     return_type_hint = Some(return_type_token.slice.to_string());
 
                     Parser::expect_token(lexer, TokenType::LeftBrace, "{")?;
-                } else if next.is_some() && ! matches!(next, Some(Token { kind: TokenType::LeftBrace, .. })) {
+                } else if next.is_some()
+                    && !matches!(
+                        next,
+                        Some(Token {
+                            kind: TokenType::LeftBrace,
+                            ..
+                        })
+                    )
+                {
                     let next = next.unwrap();
 
                     return Err(ParserError::ExpectedToken {
@@ -128,7 +166,7 @@ impl<'p> Parser<'p> {
                         expected_slice: "{",
                         got_type: next.kind,
                         got_slice: next.slice,
-                    })
+                    });
                 }
 
                 let mut body = Vec::new();
@@ -137,7 +175,10 @@ impl<'p> Parser<'p> {
                     let next = lexer.next();
 
                     match next {
-                        Some(Token { kind: TokenType::RightBrace, .. }) => break,
+                        Some(Token {
+                            kind: TokenType::RightBrace,
+                            ..
+                        }) => break,
                         None => return Err(ParserError::UnexpectedEndOfFile),
                         _ => {
                             let statement = Parser::match_token(lexer, next.unwrap())?;
@@ -151,9 +192,9 @@ impl<'p> Parser<'p> {
                     identifier.slice.to_owned(),
                     parameters,
                     body,
-                    return_type_hint
+                    return_type_hint,
                 ))
-            },
+            }
             TokenType::String => {
                 let mut buffer: String = token.slice.to_string();
 
@@ -163,20 +204,22 @@ impl<'p> Parser<'p> {
                 lexer.next();
 
                 Statement::Expression(Expression::String(buffer))
-            },
+            }
             TokenType::Integer => {
                 Statement::Expression(Expression::Integer(token.slice.parse::<i64>()?))
-            },
+            }
             TokenType::Float => {
                 Statement::Expression(Expression::Float(token.slice.parse::<f64>()?))
             }
-            _ => {
-                return Err(ParserError::UnexpectedToken(kind, token.slice))
-            }
+            _ => return Err(ParserError::UnexpectedToken(kind, token.slice)),
         })
     }
 
-    fn expect_token(lexer: &mut Lexer<'p>, kind: TokenType, slice: &'p str) -> Result<Token<'p>, ParserError<'p>> {
+    fn expect_token(
+        lexer: &mut Lexer<'p>,
+        kind: TokenType,
+        slice: &'p str,
+    ) -> Result<Token<'p>, ParserError<'p>> {
         let next = lexer.next();
 
         if let Some(token) = next {
@@ -199,7 +242,7 @@ impl<'p> Parser<'p> {
         let next = lexer.next();
 
         if next.is_none() {
-            return Err(ParserError::UnexpectedEndOfFile)
+            return Err(ParserError::UnexpectedEndOfFile);
         }
 
         let next = next.unwrap();
@@ -212,14 +255,10 @@ impl<'p> Parser<'p> {
                 buffer.pop();
 
                 Expression::String(buffer)
-            },
-            TokenType::Integer => {
-                Expression::Integer(next.slice.parse::<i64>()?)
-            },
-            TokenType::Float => {
-                Expression::Float(next.slice.parse::<f64>()?)
             }
-            _ => unimplemented!()
+            TokenType::Integer => Expression::Integer(next.slice.parse::<i64>()?),
+            TokenType::Float => Expression::Float(next.slice.parse::<f64>()?),
+            _ => unimplemented!(),
         };
 
         Ok(lhs)
