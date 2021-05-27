@@ -176,6 +176,11 @@ impl<'p> Parser<'p> {
                         _ => {
                             let statement = Parser::match_token(lexer, next.unwrap())?;
 
+                            match &statement {
+                                Statement::Function(..) => (),
+                                _ => return Err(ParserError::UnexpectedStatement(statement))
+                            };
+
                             body.push(statement);
                         }
                     }

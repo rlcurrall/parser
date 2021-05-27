@@ -1,3 +1,5 @@
+use crate::Statement;
+
 use std::convert::From;
 use std::num::ParseFloatError;
 use std::num::ParseIntError;
@@ -13,6 +15,9 @@ pub enum ParserError<'pe> {
     IntegerParserError,
     #[error("Failed to convert a numeric string into a float.")]
     FloatParserError,
+
+    #[error("Unexpected statement {0:?}.")]
+    UnexpectedStatement(Statement),
 
     #[error("Expected token {expected_type:?} ({expected_slice}), got {got_type:?} ({got_slice})")]
     ExpectedToken {
