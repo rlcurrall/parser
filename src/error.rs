@@ -14,9 +14,7 @@ pub enum ParserError<'pe> {
     #[error("Failed to convert a numeric string into a float.")]
     FloatParserError,
 
-    #[error(
-        "Unexpected token {expected_type:?} ({expected_slice}), got {got_type:?} ({got_slice})"
-    )]
+    #[error("Expected token {expected_type:?} ({expected_slice}), got {got_type:?} ({got_slice})")]
     ExpectedToken {
         expected_type: TokenType,
         expected_slice: &'pe str,

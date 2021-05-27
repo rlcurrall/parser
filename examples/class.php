@@ -1,6 +1,6 @@
 <?php
 
-class Example {
+class Example extends Another {
 
-    public static $example;
+    
 }

@@ -24,5 +24,5 @@ fn main() {
         std::process::exit(1);
     }
 
-    println!("{:#?}", serde_json::to_string(&program.unwrap()).unwrap());
+    println!("{:#?}", program.unwrap());
 }

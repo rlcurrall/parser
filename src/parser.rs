@@ -1,3 +1,4 @@
+use crate::Class;
 use crate::Expression;
 use crate::ParserError;
 use crate::Statement;
@@ -47,6 +48,83 @@ impl<'p> Parser<'p> {
                 Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
 
                 Statement::Return(expression)
+            }
+            TokenType::Class => {
+                let name = Parser::expect_token(lexer, TokenType::Identifier, "")?;
+                let mut implements = Vec::new();
+                let mut extends = String::new();
+
+                loop {
+                    let next = lexer.next();
+
+                    match next {
+                        Some(Token {
+                            kind: TokenType::Extends,
+                            ..
+                        }) => {
+                            let identifier =
+                                Parser::expect_token(lexer, TokenType::Identifier, "")?;
+
+                            extends = identifier.slice.to_string();
+                        }
+                        Some(Token {
+                            kind: TokenType::Implements,
+                            ..
+                        }) => {
+                            let identifier =
+                                Parser::expect_token(lexer, TokenType::Identifier, "")?;
+
+                            implements.push(identifier.slice.to_string());
+
+                            loop {
+                                let next = lexer.next();
+
+                                match next {
+                                    Some(Token {
+                                        kind: TokenType::Identifier,
+                                        ..
+                                    }) => {
+                                        implements.push(next.unwrap().slice.to_string());
+                                    }
+                                    Some(Token {
+                                        kind: TokenType::Comma,
+                                        ..
+                                    }) => {
+                                        let identifier =
+                                            Parser::expect_token(lexer, TokenType::Identifier, "")?;
+
+                                        implements.push(identifier.slice.to_string());
+                                    }
+                                    Some(Token {
+                                        kind: TokenType::LeftBrace,
+                                        ..
+                                    }) => {
+                                        if implements.len() >= 1 {
+                                            break;
+                                        }
+
+                                        continue;
+                                    }
+                                    None => return Err(ParserError::UnexpectedEndOfFile),
+                                    _ => {
+                                        let t = next.unwrap();
+
+                                        return Err(ParserError::UnexpectedToken(t.kind, t.slice));
+                                    }
+                                }
+                            }
+                        }
+                        Some(Token {
+                            kind: TokenType::LeftBrace,
+                            ..
+                        }) => break,
+                        _ => return Err(ParserError::Unknown),
+                    }
+                }
+
+                Parser::expect_token(lexer, TokenType::RightBrace, "}")?;
+
+                Statement::Class(Class::new(name.slice.to_owned(), implements, extends))
             }
             TokenType::Function => {
                 let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;

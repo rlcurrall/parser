@@ -1,3 +1,4 @@
+use crate::Class;
 use crate::Expression;
 use crate::Function;
 
@@ -10,4 +11,5 @@ pub enum Statement {
     Return(Expression),
     Expression(Expression),
     Function(Function),
+    Class(Class),
 }

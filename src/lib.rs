@@ -1,12 +1,14 @@
 use tusk_lexer::Lexer;
 use wasm_bindgen::prelude::*;
 
+mod class;
 mod error;
 mod expression;
 mod function;
 mod parser;
 mod statement;
 
+pub use class::Class;
 pub use error::ParserError;
 pub use expression::Expression;
 pub use function::Function;
