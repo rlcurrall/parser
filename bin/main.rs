@@ -1,6 +1,5 @@
 use std::env;
 use std::fs;
-use serde::Serialize;
 use tusk_lexer::Lexer;
 use tusk_parser::Parser;
 

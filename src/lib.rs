@@ -1,5 +1,5 @@
-use wasm_bindgen::prelude::*;
 use tusk_lexer::Lexer;
+use wasm_bindgen::prelude::*;
 
 mod error;
 mod expression;
@@ -17,7 +17,7 @@ pub use statement::Statement;
 #[wasm_bindgen]
 #[no_mangle]
 pub fn parse(source: &str) -> JsValue {
-    let mut lexer = Lexer::new(source);
+    let lexer = Lexer::new(source);
     let mut parser = Parser::new(lexer);
 
     let program = parser.all();
