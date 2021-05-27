@@ -54,7 +54,7 @@ impl<'p> Parser<'p> {
                 let mut implements = Vec::new();
                 let mut extends = String::new();
 
-                loop {
+                'outer: loop {
                     let next = lexer.next();
 
                     match next {
@@ -100,7 +100,7 @@ impl<'p> Parser<'p> {
                                         ..
                                     }) => {
                                         if implements.len() >= 1 {
-                                            break;
+                                            break 'outer;
                                         }
 
                                         continue;
