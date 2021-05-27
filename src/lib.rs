@@ -9,3 +9,4 @@ pub use statement::Statement;
 pub use expression::Expression;
 pub use error::ParserError;
 pub use function::Function;
+pub use function::FunctionParameter;

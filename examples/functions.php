@@ -1,5 +1,5 @@
 <?php
 
-function example() {
-    
+function example(string $hello): string {
+    return 'Hello' . $hello;
 }

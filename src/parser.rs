@@ -1,7 +1,7 @@
 use crate::Statement;
 use crate::Expression;
 use crate::ParserError;
-use crate::Function;
+use crate::{Function, FunctionParameter};
 
 use tusk_lexer::{Lexer, Token, TokenType};
 
@@ -40,14 +40,63 @@ impl<'p> Parser<'p> {
             TokenType::Function => {
                 let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
 
-                let parameters = Vec::new();
+                Parser::expect_token(lexer, TokenType::LeftParen, "(")?;
+
+                let mut parameters: Vec<FunctionParameter> = Vec::new();
+
+                loop {
+                    let next = lexer.next();
+
+                    if matches!(next, Some(Token { kind: TokenType::RightParen, .. })) {
+                        break;
+                    }
+
+                    let mut name = String::new();
+                    let mut type_hint = None;
+
+                    match lexer.next() {
+                        Some(t @ Token { kind: TokenType::Identifier, .. }) => {
+                            type_hint = Some(t.slice.to_string())
+                        },
+                        Some(t @ Token { kind: TokenType::Variable, .. }) => {
+                            let mut buffer: String = t.slice.to_string();
+                            buffer.remove(0);
+
+                            name = buffer;
+                        },
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => return Err(ParserError::Unknown)
+                    }
+                }
+
+                let mut return_type_hint = None;
+                let next = lexer.next();
+
+                if matches!(next, Some(Token { kind: TokenType::Colon, .. })) {
+                    let return_type_token = Parser::expect_token(lexer, TokenType::Identifier, "")?;
+
+                    return_type_hint = Some(return_type_token.slice.to_string());
+
+                    Parser::expect_token(lexer, TokenType::LeftBrace, "{")?;
+                } else if next.is_some() && ! matches!(next, Some(Token { kind: TokenType::LeftBrace, .. })) {
+                    let next = next.unwrap();
+
+                    return Err(ParserError::ExpectedToken {
+                        expected_type: TokenType::LeftBrace,
+                        expected_slice: "{",
+                        got_type: next.kind,
+                        got_slice: next.slice,
+                    })
+                }
+
                 let body = Vec::new();
 
-                Statement::Function(Function::User {
-                    name: identifier.slice.to_owned(),
-                    parameters: parameters,
-                    body: body,
-                })
+                Statement::Function(Function::new(
+                    identifier.slice.to_owned(),
+                    parameters,
+                    body,
+                    return_type_hint
+                ))
             },
             TokenType::String => {
                 let mut buffer: String = token.slice.to_string();
