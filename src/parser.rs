@@ -185,7 +185,7 @@ impl<'p> Parser<'p> {
                                         }
                                     }).collect();
 
-                                    if matches.is_empty() {
+                                    if !matches.is_empty() {
                                         return Err(ParserError::MethodAlreadyExists(function_name.clone()))
                                     }
                                 },
