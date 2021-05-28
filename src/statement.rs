@@ -5,13 +5,13 @@ use crate::Property;
 
 use serde::Serialize;
 
-#[derive(Serialize, Debug, Clone, PartialEq,)]
+#[derive(Serialize, Debug, Clone, PartialEq)]
 pub enum Statement {
     OpenTag,
-    Echo(Expression,),
-    Return(Expression,),
-    Expression(Expression,),
-    Function(Function,),
-    Class(Class,),
-    Property(Property,),
+    Echo(Expression),
+    Return(Expression),
+    Expression(Expression),
+    Function(Function),
+    Class(Class),
+    Property(Property),
 }

@@ -8,8 +8,8 @@ use std::num::ParseIntError;
 use thiserror::Error;
 use tusk_lexer::TokenType;
 
-#[derive(Debug, Error,)]
-pub enum ParserError<'pe,> {
+#[derive(Debug, Error)]
+pub enum ParserError<'pe> {
     #[error("Invalid file type. Could not find opening PHP tag.")]
     InvalidFileType,
 
@@ -19,13 +19,13 @@ pub enum ParserError<'pe,> {
     FloatParserError,
 
     #[error("Flag {0:?} is not allowed.")]
-    FlagNotAllowed(Flag,),
+    FlagNotAllowed(Flag),
 
     #[error("Unexpected statement {0:?}.")]
-    UnexpectedStatement(Statement,),
+    UnexpectedStatement(Statement),
 
     #[error("The method `{0}` has already been defined.")]
-    MethodAlreadyExists(String,),
+    MethodAlreadyExists(String),
 
     #[error("Expected token {expected_type:?} ({expected_slice}), got {got_type:?} ({got_slice})")]
     ExpectedToken {
@@ -36,7 +36,7 @@ pub enum ParserError<'pe,> {
     },
 
     #[error("Unexpected token {0:?} ({1}).")]
-    UnexpectedToken(TokenType, &'pe str,),
+    UnexpectedToken(TokenType, &'pe str),
 
     #[error("Unexpected end of file.")]
     UnexpectedEndOfFile,
@@ -45,14 +45,14 @@ pub enum ParserError<'pe,> {
     Unknown,
 }
 
-impl<'pe,> From<ParseIntError,> for ParserError<'pe,> {
-    fn from(_: ParseIntError,) -> Self {
+impl<'pe> From<ParseIntError> for ParserError<'pe> {
+    fn from(_: ParseIntError) -> Self {
         Self::IntegerParserError
     }
 }
 
-impl<'pe,> From<ParseFloatError,> for ParserError<'pe,> {
-    fn from(_: ParseFloatError,) -> Self {
+impl<'pe> From<ParseFloatError> for ParserError<'pe> {
+    fn from(_: ParseFloatError) -> Self {
         Self::FloatParserError
     }
 }

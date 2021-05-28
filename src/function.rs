@@ -4,22 +4,22 @@ use crate::{Flag, Flaggable};
 
 use serde::Serialize;
 
-#[derive(Serialize, Debug, Clone, PartialEq,)]
+#[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct Function {
     pub name: String,
-    parameters: Vec<FunctionParameter,>,
-    body: Vec<Statement,>,
-    return_type_hint: Option<String,>,
-    flags: Vec<Flag,>,
+    parameters: Vec<FunctionParameter>,
+    body: Vec<Statement>,
+    return_type_hint: Option<String>,
+    flags: Vec<Flag>,
 }
 
 impl Function {
     pub fn new(
         name: String,
-        parameters: Vec<FunctionParameter,>,
-        body: Vec<Statement,>,
-        return_type_hint: Option<String,>,
-        flags: Vec<Flag,>,
+        parameters: Vec<FunctionParameter>,
+        body: Vec<Statement>,
+        return_type_hint: Option<String>,
+        flags: Vec<Flag>,
     ) -> Self {
         Self {
             name,
@@ -32,28 +32,28 @@ impl Function {
 }
 
 impl Flaggable for Function {
-    fn add_flag(&mut self, flag: Flag,) {
-        self.flags.push(flag,)
+    fn add_flag(&mut self, flag: Flag) {
+        self.flags.push(flag)
     }
 
-    fn has_flag(&self, flag: Flag,) -> bool {
-        self.flags.contains(&flag,)
+    fn has_flag(&self, flag: Flag) -> bool {
+        self.flags.contains(&flag)
     }
 
-    fn has_flags(&self,) -> bool {
+    fn has_flags(&self) -> bool {
         !self.flags.is_empty()
     }
 }
 
-#[derive(Serialize, Debug, Clone, PartialEq,)]
+#[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct FunctionParameter {
     name: String,
-    type_hint: Option<String,>,
-    default: Option<Expression,>,
+    type_hint: Option<String>,
+    default: Option<Expression>,
 }
 
 impl FunctionParameter {
-    pub fn new(name: String, type_hint: Option<String,>, default: Option<Expression,>,) -> Self {
+    pub fn new(name: String, type_hint: Option<String>, default: Option<Expression>) -> Self {
         Self {
             name,
             type_hint,
