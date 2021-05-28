@@ -159,18 +159,22 @@ impl<'p> Parser<'p> {
                 match statement {
                     Statement::Function(ref mut function) => {
                         if flag_type == Flag::Final && function.has_flag(Flag::Abstract) {
-                            return Err(ParserError::FlagNotAllowed(flag_type));
+                            return Err(ParserError::FlagNotAllowed(flag_type, "abstract methods.".to_owned()));
                         }
 
                         if flag_type == Flag::Abstract && function.has_flag(Flag::Final) {
-                            return Err(ParserError::FlagNotAllowed(flag_type));
+                            return Err(ParserError::FlagNotAllowed(flag_type, "final methods".to_owned()));
                         }
 
                         function.add_flag(flag_type)
                     }
                     Statement::Class(ref mut class) => {
-                        if matches!(flag_type, Flag::Final | Flag::Abstract) && class.has_flags() {
-                            return Err(ParserError::FlagNotAllowed(flag_type));
+                        if matches!(flag_type, Flag::Final) && class.has_flag(Flag::Abstract) {
+                            return Err(ParserError::FlagNotAllowed(flag_type, "abstract classes.".to_owned()));
+                        }
+
+                        if matches!(flag_type, Flag::Abstract) && class.has_flag(Flag::Final) {
+                            return Err(ParserError::FlagNotAllowed(flag_type, "final classes.".to_owned()));
                         }
 
                         class.add_flag(flag_type)
@@ -181,6 +185,21 @@ impl<'p> Parser<'p> {
                         property.add_flag(flag_type);
 
                         statement = Statement::Property(property)
+                    },
+                    Statement::Property(ref mut property) => {
+                        if flag_type == Flag::Final || flag_type == Flag::Abstract {
+                            return Err(ParserError::FlagNotAllowed(flag_type, "properties".to_owned()));
+                        }
+
+                        if property.has_flag(flag_type) {
+                            return Err(ParserError::DuplicateFlag(flag_type));
+                        }
+
+                        if flag_type.is_visibility_flag() && property.has_visiblity_flag() {
+                            return Err(ParserError::FlagNotAllowed(flag_type, "properties with existing visiblity flags".to_owned()))
+                        }
+
+                        property.add_flag(flag_type)
                     },
                     Statement::Expression(Expression::Assign(ref variable, ref default)) => {
 

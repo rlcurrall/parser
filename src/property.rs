@@ -29,4 +29,10 @@ impl Flaggable for Property {
     fn has_flags(&self) -> bool {
         !self.flags.is_empty()
     }
+
+    fn has_visiblity_flag(&self) -> bool {
+        self.flags.clone().into_iter().filter(|flag| {
+            flag.is_visibility_flag()
+        }).count() >= 1
+    }
 }

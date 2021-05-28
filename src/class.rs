@@ -36,4 +36,8 @@ impl Flaggable for Class {
     fn has_flags(&self) -> bool {
         !self.flags.is_empty()
     }
+
+    fn has_visiblity_flag(&self) -> bool {
+        false
+    }
 }

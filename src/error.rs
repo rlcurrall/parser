@@ -17,8 +17,10 @@ pub enum ParserError<'pe> {
     #[error("Failed to convert a numeric string into a float.")]
     FloatParserError,
 
-    #[error("Flag {0:?} is not allowed.")]
-    FlagNotAllowed(Flag),
+    #[error("Flag {0:?} is not allowed on {1}.")]
+    FlagNotAllowed(Flag, String),
+    #[error("Flag {0:?} has already been declared.")]
+    DuplicateFlag(Flag),
 
     #[error("Unexpected statement {0:?}.")]
     UnexpectedStatement(Statement),
