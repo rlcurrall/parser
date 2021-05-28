@@ -21,7 +21,7 @@ impl<'p> Parser<'p> {
         Self { lexer }
     }
 
-    fn match_token<'n>(lexer: &'n mut Lexer<'p>, token: Token<'p>) -> Result<Statement, ParserError<'p>> {
+    fn match_token(lexer: &mut Lexer<'p>, token: Token<'p>) -> Result<Statement, ParserError<'p>> {
         let kind = token.kind;
 
         Ok(match kind {
