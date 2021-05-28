@@ -1,6 +1,6 @@
-use crate::Statement;
-use crate::Function;
 use crate::Flag;
+use crate::Function;
+use crate::Statement;
 
 use std::convert::From;
 use std::num::ParseFloatError;

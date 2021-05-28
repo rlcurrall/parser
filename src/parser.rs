@@ -2,8 +2,8 @@ use crate::Class;
 use crate::Expression;
 use crate::ParserError;
 use crate::Statement;
-use crate::{Function, FunctionParameter};
 use crate::{Flag, Flaggable};
+use crate::{Function, FunctionParameter};
 
 use std::iter::Iterator;
 use tusk_lexer::{Lexer, Token, TokenType};
@@ -50,11 +50,18 @@ impl<'p> Parser<'p> {
 
                 Statement::Return(expression)
             }
-            flag @ (TokenType::Public | TokenType::Protected | TokenType::Private | TokenType::Final | TokenType::Abstract | TokenType::Static) => {
+            flag
+            @
+            (TokenType::Public
+            | TokenType::Protected
+            | TokenType::Private
+            | TokenType::Final
+            | TokenType::Abstract
+            | TokenType::Static) => {
                 let next = lexer.next();
 
                 if next.is_none() {
-                    return Err(ParserError::UnexpectedEndOfFile)
+                    return Err(ParserError::UnexpectedEndOfFile);
                 }
 
                 let mut statement = Parser::match_token(lexer, next.unwrap())?;
@@ -66,13 +73,11 @@ impl<'p> Parser<'p> {
                     TokenType::Final => Flag::Final,
                     TokenType::Abstract => Flag::Abstract,
                     TokenType::Static => Flag::Static,
-                    _ => unreachable!()
+                    _ => unreachable!(),
                 };
 
                 match statement {
-                    Statement::Function(ref mut function) => {
-                        function.add_flag(flag_type)
-                    }
+                    Statement::Function(ref mut function) => function.add_flag(flag_type),
                     Statement::Class(ref mut class) => {
                         if matches!(flag_type, Flag::Final | Flag::Abstract) && class.has_flags() {
                             return Err(ParserError::FlagNotAllowed(flag_type));
@@ -80,7 +85,7 @@ impl<'p> Parser<'p> {
 
                         class.add_flag(flag_type)
                     }
-                    _ => return Err(ParserError::Unknown)
+                    _ => return Err(ParserError::Unknown),
                 }
 
                 statement
@@ -165,7 +170,7 @@ impl<'p> Parser<'p> {
                 }
 
                 let mut body: Vec<Statement> = Vec::new();
-                
+
                 loop {
                     let next = lexer.next();
 
@@ -179,21 +184,28 @@ impl<'p> Parser<'p> {
                             let statement = Parser::match_token(lexer, next.unwrap())?;
 
                             match &statement {
-                                Statement::Function(Function { name: function_name, .. }) => {
-                                    let matches: Vec<Statement> = body.clone().into_iter().filter(|statement| {
-                                        match statement {
+                                Statement::Function(Function {
+                                    name: function_name,
+                                    ..
+                                }) => {
+                                    let matches: Vec<Statement> = body
+                                        .clone()
+                                        .into_iter()
+                                        .filter(|statement| match statement {
                                             Statement::Function(function) => {
                                                 return function.name == *function_name
-                                            },
-                                            _ => false
-                                        }
-                                    }).collect();
+                                            }
+                                            _ => false,
+                                        })
+                                        .collect();
 
                                     if !matches.is_empty() {
-                                        return Err(ParserError::MethodAlreadyExists(function_name.clone()))
+                                        return Err(ParserError::MethodAlreadyExists(
+                                            function_name.clone(),
+                                        ));
                                     }
-                                },
-                                _ => return Err(ParserError::UnexpectedStatement(statement))
+                                }
+                                _ => return Err(ParserError::UnexpectedStatement(statement)),
                             };
 
                             body.push(statement);
@@ -201,7 +213,13 @@ impl<'p> Parser<'p> {
                     }
                 }
 
-                Statement::Class(Class::new(name.slice.to_owned(), implements, extends, body, Vec::new()))
+                Statement::Class(Class::new(
+                    name.slice.to_owned(),
+                    implements,
+                    extends,
+                    body,
+                    Vec::new(),
+                ))
             }
             TokenType::Function => {
                 let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
@@ -350,7 +368,7 @@ impl<'p> Parser<'p> {
                     parameters,
                     body,
                     return_type_hint,
-                    Vec::new()
+                    Vec::new(),
                 ))
             }
             TokenType::String => {

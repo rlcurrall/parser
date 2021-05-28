@@ -4,20 +4,20 @@ use wasm_bindgen::prelude::*;
 mod class;
 mod error;
 mod expression;
+mod flag;
 mod function;
 mod parser;
 mod statement;
-mod flag;
 
 pub use class::Class;
 pub use error::ParserError;
 pub use expression::Expression;
+pub use flag::Flag;
+pub use flag::Flaggable;
 pub use function::Function;
 pub use function::FunctionParameter;
 pub use parser::Parser;
 pub use statement::Statement;
-pub use flag::Flag;
-pub use flag::Flaggable;
 
 #[wasm_bindgen]
 #[no_mangle]

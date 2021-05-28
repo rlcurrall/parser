@@ -10,7 +10,7 @@ pub struct Function {
     parameters: Vec<FunctionParameter>,
     body: Vec<Statement>,
     return_type_hint: Option<String>,
-    flags: Vec<Flag>
+    flags: Vec<Flag>,
 }
 
 impl Function {
@@ -19,20 +19,19 @@ impl Function {
         parameters: Vec<FunctionParameter>,
         body: Vec<Statement>,
         return_type_hint: Option<String>,
-        flags: Vec<Flag>
+        flags: Vec<Flag>,
     ) -> Self {
         Self {
             name,
             parameters,
             body,
             return_type_hint,
-            flags
+            flags,
         }
     }
 }
 
 impl Flaggable for Function {
-
     fn add_flag(&mut self, flag: Flag) {
         self.flags.push(flag)
     }
