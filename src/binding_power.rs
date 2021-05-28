@@ -18,7 +18,7 @@ impl BindingPower {
             Asterisk | Slash => (13, 14),
             Plus | Minus | Period => (11, 12),
             GreaterThan | LessThan | GreaterThanEquals | LessThanEquals => (9, 10),
-            Equals => (2, 1),
+            Equals | DoubleArrow => (2, 1),
             _ => return None,
         })
     }

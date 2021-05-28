@@ -1,3 +1,5 @@
+#![feature(bindings_after_at)]
+
 use tusk_lexer::Lexer;
 use wasm_bindgen::prelude::*;
 

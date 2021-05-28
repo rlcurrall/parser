@@ -571,6 +571,58 @@ impl<'p> Parser<'p> {
             TokenType::True => Expression::from(true),
             TokenType::False => Expression::from(false),
             TokenType::Null => Expression::Null,
+            TokenType::LeftBracket => {
+                let mut items = Vec::new();
+                let mut counter = 0;
+
+                loop {
+                    let next = lexer.peek();
+
+                    match next {
+                        Some(Token { kind: TokenType::RightBracket, .. }) => {
+                            lexer.next();
+                            
+                            break
+                        },
+                        Some(Token { kind: TokenType::Comma, .. }) => {
+                            lexer.next();
+
+                            continue;
+                        },
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => {
+                            let expression = Parser::parse_expression(lexer, 0, None)?;
+
+                            match expression {
+                                Expression::ArrayItem { ref key, .. } => {
+                                    match **key {
+                                        Expression::Integer(i) => {
+                                            counter = i + 1
+                                        },
+                                        Expression::Float(f) => {
+                                            counter = (f as i64) + 1
+                                        }
+                                        _ => ()
+                                    }
+
+                                    items.push(expression)
+                                },
+                                _ => {
+                                    let key = Expression::Integer(counter.clone());
+                                    
+                                    items.push(Expression::ArrayItem {
+                                        key: Box::new(key), value: Box::new(expression),
+                                    });
+
+                                    counter += 1
+                                },
+                            }
+                        }
+                    }
+                }
+                
+                Expression::Array(items)
+            },
             TokenType::Identifier => {
                 match lexer.clone().next() {
                     Some(Token { kind: TokenType::Variable, slice, .. }) => {
