@@ -12,14 +12,11 @@ fn test_it_can_be_created() {
 
 #[test]
 fn test_it_can_parse_literals() {
-    assert_statements_match(
-        "12345 12345.6789 'Hello, world!'",
-        vec![
-            Statement::Expression(Expression::Integer(12345)),
-            Statement::Expression(Expression::Float(12345.6789)),
-            Statement::Expression(Expression::String("Hello, world!".to_owned())),
-        ],
-    );
+    assert_statements_match("12345 12345.6789 'Hello, world!'", vec![
+        Statement::Expression(Expression::Integer(12345)),
+        Statement::Expression(Expression::Float(12345.6789)),
+        Statement::Expression(Expression::String("Hello, world!".to_owned())),
+    ]);
 }
 
 fn assert_statements_match(source: &str, statements: Vec<Statement>) {
