@@ -79,15 +79,15 @@ impl<'p> Parser<'p> {
                 match statement {
                     Statement::Function(ref mut function) => {
                         if flag_type == Flag::Final && function.has_flag(Flag::Abstract) {
-                            return Err(ParserError::FlagNotAllowed(flag_type))
+                            return Err(ParserError::FlagNotAllowed(flag_type));
                         }
 
                         if flag_type == Flag::Abstract && function.has_flag(Flag::Final) {
-                            return Err(ParserError::FlagNotAllowed(flag_type))
+                            return Err(ParserError::FlagNotAllowed(flag_type));
                         }
 
                         function.add_flag(flag_type)
-                    },
+                    }
                     Statement::Class(ref mut class) => {
                         if matches!(flag_type, Flag::Final | Flag::Abstract) && class.has_flags() {
                             return Err(ParserError::FlagNotAllowed(flag_type));
@@ -119,8 +119,7 @@ impl<'p> Parser<'p> {
                                 return Err(ParserError::UnexpectedToken(t.kind, t.slice));
                             }
 
-                            let identifier =
-                                Parser::expect_token(lexer, TokenType::Identifier, "")?;
+                            let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
 
                             extends = identifier.slice.to_string();
                         }
@@ -128,8 +127,7 @@ impl<'p> Parser<'p> {
                             kind: TokenType::Implements,
                             ..
                         }) => {
-                            let identifier =
-                                Parser::expect_token(lexer, TokenType::Identifier, "")?;
+                            let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
 
                             implements.push(identifier.slice.to_string());
 
@@ -144,11 +142,9 @@ impl<'p> Parser<'p> {
                                         implements.push(next.unwrap().slice.to_string());
                                     }
                                     Some(Token {
-                                        kind: TokenType::Comma,
-                                        ..
+                                        kind: TokenType::Comma, ..
                                     }) => {
-                                        let identifier =
-                                            Parser::expect_token(lexer, TokenType::Identifier, "")?;
+                                        let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
 
                                         implements.push(identifier.slice.to_string());
                                     }
@@ -195,24 +191,19 @@ impl<'p> Parser<'p> {
 
                             match &statement {
                                 Statement::Function(Function {
-                                    name: function_name,
-                                    ..
+                                    name: function_name, ..
                                 }) => {
                                     let matches: Vec<Statement> = body
                                         .clone()
                                         .into_iter()
                                         .filter(|statement| match statement {
-                                            Statement::Function(function) => {
-                                                return function.name == *function_name
-                                            }
+                                            Statement::Function(function) => return function.name == *function_name,
                                             _ => false,
                                         })
                                         .collect();
 
                                     if !matches.is_empty() {
-                                        return Err(ParserError::MethodAlreadyExists(
-                                            function_name.clone(),
-                                        ));
+                                        return Err(ParserError::MethodAlreadyExists(function_name.clone()));
                                     }
                                 }
                                 _ => return Err(ParserError::UnexpectedStatement(statement)),
@@ -223,13 +214,7 @@ impl<'p> Parser<'p> {
                     }
                 }
 
-                Statement::Class(Class::new(
-                    name.slice.to_owned(),
-                    implements,
-                    extends,
-                    body,
-                    Vec::new(),
-                ))
+                Statement::Class(Class::new(name.slice.to_owned(), implements, extends, body, Vec::new()))
             }
             TokenType::Function => {
                 let identifier = Parser::expect_token(lexer, TokenType::Identifier, "")?;
@@ -249,8 +234,7 @@ impl<'p> Parser<'p> {
                         }) => break,
                         // consume trailing commas..
                         Some(Token {
-                            kind: TokenType::Comma,
-                            ..
+                            kind: TokenType::Comma, ..
                         }) => {
                             next = lexer.next();
                         }
@@ -391,21 +375,19 @@ impl<'p> Parser<'p> {
 
                 Statement::Expression(Expression::String(buffer))
             }
-            TokenType::Integer => {
-                Statement::Expression(Expression::Integer(token.slice.parse::<i64>()?))
+            TokenType::Integer => Statement::Expression(Expression::Integer(token.slice.parse::<i64>()?)),
+            TokenType::Float => Statement::Expression(Expression::Float(token.slice.parse::<f64>()?)),
+            _ => {
+                let expression = Parser::parse_expression(lexer)?;
+
+                Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
+
+                Statement::Expression(expression)
             }
-            TokenType::Float => {
-                Statement::Expression(Expression::Float(token.slice.parse::<f64>()?))
-            }
-            _ => return Err(ParserError::UnexpectedToken(kind, token.slice)),
         })
     }
 
-    fn expect_token(
-        lexer: &mut Lexer<'p>,
-        kind: TokenType,
-        slice: &'p str,
-    ) -> Result<Token<'p>, ParserError<'p>> {
+    fn expect_token(lexer: &mut Lexer<'p>, kind: TokenType, slice: &'p str) -> Result<Token<'p>, ParserError<'p>> {
         let next = lexer.next();
 
         if let Some(token) = next {
@@ -444,7 +426,16 @@ impl<'p> Parser<'p> {
             }
             TokenType::Integer => Expression::Integer(next.slice.parse::<i64>()?),
             TokenType::Float => Expression::Float(next.slice.parse::<f64>()?),
-            _ => unimplemented!(),
+            TokenType::Variable => {
+                let mut buffer = next.slice.to_string();
+                // remove the $
+                buffer.remove(0);
+
+                Expression::Variable(buffer)
+            }
+            _ => {
+                unimplemented!()
+            }
         };
 
         Ok(lhs)

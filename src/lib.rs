@@ -7,6 +7,7 @@ mod expression;
 mod flag;
 mod function;
 mod parser;
+mod property;
 mod statement;
 
 pub use class::Class;
@@ -17,6 +18,7 @@ pub use flag::Flaggable;
 pub use function::Function;
 pub use function::FunctionParameter;
 pub use parser::Parser;
+pub use property::Property;
 pub use statement::Statement;
 
 #[wasm_bindgen]

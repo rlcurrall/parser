@@ -13,13 +13,7 @@ pub struct Class {
 }
 
 impl Class {
-    pub fn new(
-        name: String,
-        implements: Vec<String>,
-        extends: String,
-        body: Vec<Statement>,
-        flags: Vec<Flag>,
-    ) -> Self {
+    pub fn new(name: String, implements: Vec<String>, extends: String, body: Vec<Statement>, flags: Vec<Flag>) -> Self {
         Self {
             name,
             implements,
