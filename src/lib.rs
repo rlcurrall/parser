@@ -9,6 +9,7 @@ mod function;
 mod parser;
 mod property;
 mod statement;
+mod binding_power;
 
 pub use class::Class;
 pub use error::ParserError;
@@ -20,6 +21,7 @@ pub use function::FunctionParameter;
 pub use parser::Parser;
 pub use property::Property;
 pub use statement::Statement;
+pub use binding_power::BindingPower;
 
 #[wasm_bindgen]
 #[no_mangle]

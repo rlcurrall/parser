@@ -4,6 +4,7 @@ use crate::ParserError;
 use crate::Statement;
 use crate::{Flag, Flaggable};
 use crate::{Function, FunctionParameter};
+use crate::BindingPower;
 
 use std::iter::Iterator;
 use tusk_lexer::{Lexer, Token, TokenType};
@@ -37,14 +38,14 @@ impl<'p> Parser<'p> {
         Ok(match kind {
             TokenType::OpenTag => Statement::OpenTag,
             TokenType::Echo => {
-                let expression = Parser::parse_expression(lexer)?;
+                let expression = Parser::parse_expression(lexer, 0, None)?;
 
                 Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
 
                 Statement::Echo(expression)
             }
             TokenType::Return => {
-                let expression = Parser::parse_expression(lexer)?;
+                let expression = Parser::parse_expression(lexer, 0, None)?;
 
                 Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
 
@@ -298,7 +299,7 @@ impl<'p> Parser<'p> {
                             ..
                         })
                     ) {
-                        default = Some(Parser::parse_expression(lexer)?);
+                        default = Some(Parser::parse_expression(lexer, 0, None)?);
                     }
 
                     parameters.push(FunctionParameter::new(name, type_hint, default))
@@ -378,7 +379,9 @@ impl<'p> Parser<'p> {
             TokenType::Integer => Statement::Expression(Expression::Integer(token.slice.parse::<i64>()?)),
             TokenType::Float => Statement::Expression(Expression::Float(token.slice.parse::<f64>()?)),
             _ => {
-                let expression = Parser::parse_expression(lexer)?;
+                let expression = Parser::parse_expression(lexer, 0, Some(token))?;
+
+                println!("{:?}", expression);
 
                 Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
 
@@ -406,8 +409,12 @@ impl<'p> Parser<'p> {
         }
     }
 
-    fn parse_expression(lexer: &mut Lexer<'p>) -> Result<Expression, ParserError<'p>> {
-        let next = lexer.next();
+    fn parse_expression(lexer: &mut Lexer<'p>, bp: u8, maybe_token: Option<Token>) -> Result<Expression, ParserError<'p>> {
+        let next = if maybe_token.is_none() {
+            lexer.next()
+        } else {
+            maybe_token
+        };
 
         if next.is_none() {
             return Err(ParserError::UnexpectedEndOfFile);
@@ -415,7 +422,7 @@ impl<'p> Parser<'p> {
 
         let next = next.unwrap();
 
-        let lhs = match next.kind {
+        let mut lhs = match next.kind {
             TokenType::String => {
                 let mut buffer: String = next.slice.to_owned();
                 // remove the quotes
@@ -437,6 +444,36 @@ impl<'p> Parser<'p> {
                 unimplemented!()
             }
         };
+
+        loop {
+            let next = lexer.peek();
+
+            if next.is_none() {
+                return Err(ParserError::UnexpectedEndOfFile)
+            }
+
+            let op = next.unwrap();
+
+            if let Some((lbp, _)) = BindingPower::postfix(op.kind) {
+
+            }
+
+            if let Some((lbp, rbp)) = BindingPower::infix(op.kind) {
+                if lbp < bp {
+                    break;
+                }
+
+                let op = lexer.next().unwrap();
+
+                let rhs = Parser::parse_expression(lexer, rbp, None)?;
+
+                lhs = Expression::make_infix(lhs, &op.kind, rhs);
+
+                continue;
+            }
+
+            break;
+        }
 
         Ok(lhs)
     }
