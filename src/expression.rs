@@ -5,6 +5,9 @@ use tusk_lexer::TokenType;
 
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub enum Expression {
+    True,
+    False,
+    Null,
     String(String),
     Integer(i64),
     Float(f64),
@@ -27,6 +30,15 @@ impl Expression {
             Period => Self::Concat(lhs, rhs),
             Equals => Self::Assign(lhs, rhs),
             _ => unimplemented!()
+        }
+    }
+}
+
+impl From<bool> for Expression {
+    fn from(value: bool) -> Self {
+        match value {
+            true => Self::True,
+            false => Self::False,
         }
     }
 }

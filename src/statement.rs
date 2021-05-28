@@ -2,6 +2,8 @@ use crate::Class;
 use crate::Expression;
 use crate::Function;
 use crate::Property;
+use crate::If;
+use crate::Else;
 
 use serde::Serialize;
 
@@ -14,4 +16,6 @@ pub enum Statement {
     Function(Function),
     Class(Class),
     Property(Property),
+    If(If),
+    Else(Else)
 }

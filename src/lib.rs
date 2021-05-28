@@ -11,6 +11,7 @@ mod property;
 mod statement;
 mod binding_power;
 mod binary_op;
+mod if_statement;
 
 pub use class::Class;
 pub use error::ParserError;
@@ -24,6 +25,8 @@ pub use property::Property;
 pub use statement::Statement;
 pub use binding_power::BindingPower;
 pub use binary_op::BinaryOp;
+pub use if_statement::If;
+pub use if_statement::Else;
 
 #[wasm_bindgen]
 #[no_mangle]

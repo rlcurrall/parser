@@ -5,6 +5,7 @@ use crate::Statement;
 use crate::{Flag, Flaggable};
 use crate::{Function, FunctionParameter};
 use crate::BindingPower;
+use crate::{If, Else};
 
 use std::iter::Iterator;
 use tusk_lexer::{Lexer, Token, TokenType};
@@ -15,8 +16,10 @@ pub struct Parser<'p> {
     lexer: Lexer<'p>,
 }
 
-impl<'p> Iterator for Parser<'p> {
-    type Item = Result<Statement, ParserError<'p>>;
+impl<'p> Parser<'p> {
+    pub fn new(lexer: Lexer<'p>) -> Self {
+        Self { lexer }
+    }
 
     fn next(&mut self) -> Option<Result<Statement, ParserError<'p>>> {
         if let Some(token) = self.lexer.next() {
@@ -25,14 +28,8 @@ impl<'p> Iterator for Parser<'p> {
             Some(Err(ParserError::Unknown))
         }
     }
-}
 
-impl<'p> Parser<'p> {
-    pub fn new(lexer: Lexer<'p>) -> Self {
-        Self { lexer }
-    }
-
-    fn match_token(lexer: &mut Lexer<'p>, token: Token<'p>) -> Result<Statement, ParserError<'p>> {
+    fn match_token<'n>(lexer: &'n mut Lexer<'p>, token: Token<'p>) -> Result<Statement, ParserError<'p>> {
         let kind = token.kind;
 
         Ok(match kind {
@@ -44,6 +41,98 @@ impl<'p> Parser<'p> {
 
                 Statement::Echo(expression)
             }
+            TokenType::If => {
+                Parser::expect_token(lexer, TokenType::LeftParen, "(")?;
+
+                let condition = Parser::parse_expression(lexer, 0, None)?;
+
+                Parser::expect_token(lexer, TokenType::RightParen, ")")?;
+
+                Parser::expect_token(lexer, TokenType::LeftBrace, "{")?;
+
+                let mut body = Vec::new();
+                let mut did_find_right_brace = false;
+
+                loop {
+                    let next = lexer.next();
+
+                    match next {
+                        Some(Token {
+                            kind: TokenType::RightBrace,
+                            ..
+                        }) => {
+                            did_find_right_brace = true;
+
+                            break
+                        },
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => {
+                            let statement = Parser::match_token(lexer, next.unwrap())?;
+
+                            body.push(statement);
+                        }
+                    }
+                }
+
+                if ! did_find_right_brace {
+                    Parser::expect_token(lexer, TokenType::RightBrace, "}")?;
+                }
+
+                let mut else_ifs = Vec::new();
+                let mut r#else = None;
+
+                loop {
+                    let next = lexer.clone().peek();
+
+                    let next = match next {
+                        Some(t) => next.unwrap(),
+                        None => break,
+                    };
+
+                    match next.kind {
+                        TokenType::Else => {
+                            Parser::expect_token(lexer, TokenType::LeftBrace, "{")?;
+
+                            let mut body = Vec::new();
+                            let mut did_find_right_brace = false;
+
+                            loop {
+                                let next = lexer.next();
+
+                                match next {
+                                    Some(Token {
+                                        kind: TokenType::RightBrace,
+                                        ..
+                                    }) => {
+                                        did_find_right_brace = true;
+
+                                        break
+                                    },
+                                    None => return Err(ParserError::UnexpectedEndOfFile),
+                                    _ => {
+                                        let statement = Parser::match_token(lexer, next.unwrap())?;
+
+                                        body.push(statement);
+                                    }
+                                }
+                            }
+
+                            if ! did_find_right_brace {
+                                Parser::expect_token(lexer, TokenType::RightBrace, "}")?;
+                            }
+
+                            r#else = Some(
+                                Box::new(Statement::Else(Else::new(body)))
+                            )
+                        },
+                        _ => {
+                            return Err(ParserError::UnexpectedToken(next.kind, next.slice))
+                        }
+                    }
+                }
+
+                Statement::If(If::new(condition, body, else_ifs, r#else))
+            },
             TokenType::Return => {
                 let expression = Parser::parse_expression(lexer, 0, None)?;
 
@@ -381,8 +470,6 @@ impl<'p> Parser<'p> {
             _ => {
                 let expression = Parser::parse_expression(lexer, 0, Some(token))?;
 
-                println!("{:?}", expression);
-
                 Parser::expect_token(lexer, TokenType::SemiColon, ";")?;
 
                 Statement::Expression(expression)
@@ -440,6 +527,9 @@ impl<'p> Parser<'p> {
 
                 Expression::Variable(buffer)
             }
+            TokenType::True => Expression::from(true),
+            TokenType::False => Expression::from(false),
+            TokenType::Null => Expression::Null,
             _ => {
                 unimplemented!()
             }
@@ -479,7 +569,7 @@ impl<'p> Parser<'p> {
     }
 
     #[allow(clippy::while_let_on_iterator)]
-    pub fn all(&mut self) -> Result<Program, ParserError> {
+    pub fn all(&'p mut self) -> Result<Program, ParserError> {
         let mut program = Vec::new();
 
         while let Some(token) = self.lexer.next() {
