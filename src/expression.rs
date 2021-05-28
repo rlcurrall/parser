@@ -1,3 +1,5 @@
+use crate::BinaryOp;
+
 use serde::Serialize;
 use tusk_lexer::TokenType;
 
@@ -7,6 +9,7 @@ pub enum Expression {
     Integer(i64),
     Float(f64),
     Variable(String),
+    Binary(Box<Expression>, BinaryOp, Box<Expression>),
     Assign(Box<Expression>, Box<Expression>),
     Concat(Box<Expression>, Box<Expression>),
 }
@@ -14,12 +17,15 @@ pub enum Expression {
 impl Expression {
 
     pub fn make_infix(lhs: Expression, operator: &TokenType, rhs: Expression) -> Self {
+        use TokenType::*;
+
         let lhs = Box::new(lhs);
         let rhs = Box::new(rhs);
 
         match *operator {
-            TokenType::Period => Self::Concat(lhs, rhs),
-            TokenType::Equals => Self::Assign(lhs, rhs),
+            Plus | Minus | Asterisk | Slash | Percent => Self::Binary(lhs, BinaryOp::from_token_type(*operator), rhs),
+            Period => Self::Concat(lhs, rhs),
+            Equals => Self::Assign(lhs, rhs),
             _ => unimplemented!()
         }
     }

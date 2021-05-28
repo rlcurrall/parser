@@ -11,9 +11,13 @@ impl BindingPower {
     }
 
     pub fn infix(kind: TokenType) -> Option<(u8, u8)> {
+        use TokenType::*;
+
         Some(match kind {
-            TokenType::Period => (11, 12),
-            TokenType::Equals => (2, 1),
+            Asterisk | Slash => (13, 14),
+            Plus | Minus | Period => (11, 12),
+            GreaterThan | LessThan | GreaterThanEquals | LessThanEquals => (9, 10),
+            Equals => (2, 1),
             _ => return None
         })
     }

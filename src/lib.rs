@@ -10,6 +10,7 @@ mod parser;
 mod property;
 mod statement;
 mod binding_power;
+mod binary_op;
 
 pub use class::Class;
 pub use error::ParserError;
@@ -22,6 +23,7 @@ pub use parser::Parser;
 pub use property::Property;
 pub use statement::Statement;
 pub use binding_power::BindingPower;
+pub use binary_op::BinaryOp;
 
 #[wasm_bindgen]
 #[no_mangle]
