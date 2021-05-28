@@ -12,9 +12,18 @@ pub struct If {
 }
 
 impl If {
-
-    pub fn new(condition: Expression, then: Vec<Statement>, else_ifs: Vec<Box<Statement>>, r#else: Option<Box<Statement>>) -> Self {
-        Self { condition, then, else_ifs, r#else }
+    pub fn new(
+        condition: Expression,
+        then: Vec<Statement>,
+        else_ifs: Vec<Box<Statement>>,
+        r#else: Option<Box<Statement>>,
+    ) -> Self {
+        Self {
+            condition,
+            then,
+            else_ifs,
+            r#else,
+        }
     }
 }
 
@@ -24,7 +33,6 @@ pub struct Else {
 }
 
 impl Else {
-
     pub fn new(then: Vec<Statement>) -> Self {
         Self { then }
     }

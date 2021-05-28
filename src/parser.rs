@@ -1,11 +1,11 @@
+use crate::BindingPower;
 use crate::Class;
 use crate::Expression;
 use crate::ParserError;
 use crate::Statement;
+use crate::{Else, If};
 use crate::{Flag, Flaggable};
 use crate::{Function, FunctionParameter};
-use crate::BindingPower;
-use crate::{If, Else};
 
 use std::iter::Iterator;
 use tusk_lexer::{Lexer, Token, TokenType};
@@ -55,8 +55,8 @@ impl<'p> Parser<'p> {
                         }) => {
                             did_find_right_brace = true;
 
-                            break
-                        },
+                            break;
+                        }
                         None => return Err(ParserError::UnexpectedEndOfFile),
                         _ => {
                             let statement = Parser::match_token(lexer, next.unwrap())?;
@@ -66,7 +66,7 @@ impl<'p> Parser<'p> {
                     }
                 }
 
-                if ! did_find_right_brace {
+                if !did_find_right_brace {
                     Parser::expect_token(lexer, TokenType::RightBrace, "}")?;
                 }
 
@@ -98,8 +98,8 @@ impl<'p> Parser<'p> {
                                     }) => {
                                         did_find_right_brace = true;
 
-                                        break
-                                    },
+                                        break;
+                                    }
                                     None => return Err(ParserError::UnexpectedEndOfFile),
                                     _ => {
                                         let statement = Parser::match_token(lexer, next.unwrap())?;
@@ -109,22 +109,18 @@ impl<'p> Parser<'p> {
                                 }
                             }
 
-                            if ! did_find_right_brace {
+                            if !did_find_right_brace {
                                 Parser::expect_token(lexer, TokenType::RightBrace, "}")?;
                             }
 
-                            r#else = Some(
-                                Box::new(Statement::Else(Else::new(body)))
-                            )
-                        },
-                        _ => {
-                            return Err(ParserError::UnexpectedToken(next.kind, next.slice))
+                            r#else = Some(Box::new(Statement::Else(Else::new(body))))
                         }
+                        _ => return Err(ParserError::UnexpectedToken(next.kind, next.slice)),
                     }
                 }
 
                 Statement::If(If::new(condition, body, else_ifs, r#else))
-            },
+            }
             TokenType::Return => {
                 let expression = Parser::parse_expression(lexer, 0, None)?;
 
@@ -488,7 +484,11 @@ impl<'p> Parser<'p> {
         }
     }
 
-    fn parse_expression(lexer: &mut Lexer<'p>, bp: u8, maybe_token: Option<Token>) -> Result<Expression, ParserError<'p>> {
+    fn parse_expression(
+        lexer: &mut Lexer<'p>,
+        bp: u8,
+        maybe_token: Option<Token>,
+    ) -> Result<Expression, ParserError<'p>> {
         let next = if maybe_token.is_none() {
             lexer.next()
         } else {
@@ -531,14 +531,12 @@ impl<'p> Parser<'p> {
             let next = lexer.peek();
 
             if next.is_none() {
-                return Err(ParserError::UnexpectedEndOfFile)
+                return Err(ParserError::UnexpectedEndOfFile);
             }
 
             let op = next.unwrap();
 
-            if let Some((lbp, _)) = BindingPower::postfix(op.kind) {
-
-            }
+            if let Some((lbp, _)) = BindingPower::postfix(op.kind) {}
 
             if let Some((lbp, rbp)) = BindingPower::infix(op.kind) {
                 if lbp < bp {

@@ -3,7 +3,6 @@ use tusk_lexer::TokenType;
 pub struct BindingPower;
 
 impl BindingPower {
-
     pub fn postfix(kind: TokenType) -> Option<(u8, ())> {
         Some(match kind {
             _ => return None,
@@ -18,7 +17,7 @@ impl BindingPower {
             Plus | Minus | Period => (11, 12),
             GreaterThan | LessThan | GreaterThanEquals | LessThanEquals => (9, 10),
             Equals => (2, 1),
-            _ => return None
+            _ => return None,
         })
     }
 }

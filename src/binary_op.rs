@@ -1,5 +1,5 @@
-use tusk_lexer::TokenType;
 use serde::Serialize;
+use tusk_lexer::TokenType;
 
 #[derive(Debug, PartialEq, Clone, Serialize)]
 pub enum BinaryOp {
@@ -11,7 +11,6 @@ pub enum BinaryOp {
 }
 
 impl BinaryOp {
-
     pub fn from_token_type(kind: TokenType) -> Self {
         use TokenType::*;
 
@@ -21,7 +20,7 @@ impl BinaryOp {
             Asterisk => Self::Multiply,
             Slash => Self::Divide,
             Percent => Self::Modulo,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 }

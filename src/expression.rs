@@ -18,7 +18,6 @@ pub enum Expression {
 }
 
 impl Expression {
-
     pub fn make_infix(lhs: Expression, operator: &TokenType, rhs: Expression) -> Self {
         use TokenType::*;
 
@@ -29,7 +28,7 @@ impl Expression {
             Plus | Minus | Asterisk | Slash | Percent => Self::Binary(lhs, BinaryOp::from_token_type(*operator), rhs),
             Period => Self::Concat(lhs, rhs),
             Equals => Self::Assign(lhs, rhs),
-            _ => unimplemented!()
+            _ => unimplemented!(),
         }
     }
 }
