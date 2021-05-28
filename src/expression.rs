@@ -12,6 +12,8 @@ pub enum Expression {
     Integer(i64),
     Float(f64),
     Variable(String),
+    TypedVariable(String, String),
+    Identifier(String),
     Binary(Box<Expression>, BinaryOp, Box<Expression>),
     Assign(Box<Expression>, Box<Expression>),
     Concat(Box<Expression>, Box<Expression>),

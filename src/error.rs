@@ -25,6 +25,8 @@ pub enum ParserError<'pe> {
 
     #[error("The method `{0}` has already been defined.")]
     MethodAlreadyExists(String),
+    #[error("The property `{0}` has already been defined.")]
+    PropertyAlreadyExists(String),
 
     #[error("Expected token {expected_type:?} ({expected_slice}), got {got_type:?} ({got_slice})")]
     ExpectedToken {

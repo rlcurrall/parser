@@ -6,6 +6,7 @@ use crate::Statement;
 use crate::{Else, If};
 use crate::{Flag, Flaggable};
 use crate::{Function, FunctionParameter};
+use crate::Property;
 
 use std::iter::Iterator;
 use tusk_lexer::{Lexer, Token, TokenType};
@@ -174,7 +175,19 @@ impl<'p> Parser<'p> {
 
                         class.add_flag(flag_type)
                     }
-                    _ => return Err(ParserError::Unknown),
+                    Statement::Expression(Expression::TypedVariable(ref type_hint, ref variable)) => {
+                        let mut property = Property::new(variable.clone(), Vec::new(), Some(type_hint.clone()), None);
+
+                        property.add_flag(flag_type);
+
+                        statement = Statement::Property(property)
+                    },
+                    Statement::Expression(Expression::Assign(ref variable, ref default)) => {
+
+                    },
+                    _ => {
+                        return Err(ParserError::Unknown)
+                    },
                 }
 
                 statement
@@ -283,6 +296,22 @@ impl<'p> Parser<'p> {
 
                                     if !matches.is_empty() {
                                         return Err(ParserError::MethodAlreadyExists(function_name.clone()));
+                                    }
+                                }
+                                Statement::Property(Property {
+                                    name: property_name, ..
+                                }) => {
+                                    let matches: Vec<Statement> = body
+                                        .clone()
+                                        .into_iter()
+                                        .filter(|statement| match statement {
+                                            Statement::Property(property) => property.name == *property_name,
+                                            _ => false,
+                                        })
+                                        .collect();
+
+                                    if !matches.is_empty() {
+                                        return Err(ParserError::PropertyAlreadyExists(property_name.clone()));
                                     }
                                 }
                                 _ => return Err(ParserError::UnexpectedStatement(statement)),
@@ -430,7 +459,7 @@ impl<'p> Parser<'p> {
                         None => return Err(ParserError::UnexpectedEndOfFile),
                         _ => {
                             let statement = Parser::match_token(lexer, next.unwrap())?;
-
+                            
                             body.push(statement);
                         }
                     }
@@ -523,6 +552,20 @@ impl<'p> Parser<'p> {
             TokenType::True => Expression::from(true),
             TokenType::False => Expression::from(false),
             TokenType::Null => Expression::Null,
+            TokenType::Identifier => {
+                match lexer.clone().next() {
+                    Some(Token { kind: TokenType::Variable, slice, .. }) => {
+                        let mut buffer = slice.to_string();
+                        // remove the $
+                        buffer.remove(0);
+
+                        lexer.next();
+
+                        Expression::TypedVariable(next.slice.to_owned(), buffer) 
+                    },
+                    _ => Expression::Identifier(next.slice.to_owned())
+                }
+            },
             _ => {
                 unimplemented!()
             }

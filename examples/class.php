@@ -2,5 +2,5 @@
 
 class Example {
 
-    
+    public string $example;
 }

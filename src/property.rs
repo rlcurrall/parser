@@ -4,10 +4,17 @@ use serde::Serialize;
 
 #[derive(Debug, PartialEq, Clone, Serialize)]
 pub struct Property {
-    name: String,
+    pub name: String,
     flags: Vec<Flag>,
-    type_hint: String,
-    default: Expression,
+    type_hint: Option<String>,
+    default: Option<Expression>,
+}
+
+impl Property {
+
+    pub fn new(name: String, flags: Vec<Flag>, type_hint: Option<String>, default: Option<Expression>) -> Self {
+        Self { name, flags, type_hint, default }
+    }
 }
 
 impl Flaggable for Property {
