@@ -8,6 +8,7 @@ pub enum Expression {
     Float(f64),
     Variable(String),
     Assign(Box<Expression>, Box<Expression>),
+    Concat(Box<Expression>, Box<Expression>),
 }
 
 impl Expression {
@@ -17,9 +18,8 @@ impl Expression {
         let rhs = Box::new(rhs);
 
         match *operator {
-            TokenType::Equals => {
-                Self::Assign(lhs, rhs)
-            },
+            TokenType::Period => Self::Concat(lhs, rhs),
+            TokenType::Equals => Self::Assign(lhs, rhs),
             _ => unimplemented!()
         }
     }
