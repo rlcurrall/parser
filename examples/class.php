@@ -2,7 +2,7 @@
 
 class Example {
 
-    public static function example() {
+    final public static function example() {
 
     }
 

@@ -77,7 +77,17 @@ impl<'p> Parser<'p> {
                 };
 
                 match statement {
-                    Statement::Function(ref mut function) => function.add_flag(flag_type),
+                    Statement::Function(ref mut function) => {
+                        if flag_type == Flag::Final && function.has_flag(Flag::Abstract) {
+                            return Err(ParserError::FlagNotAllowed(flag_type))
+                        }
+
+                        if flag_type == Flag::Abstract && function.has_flag(Flag::Final) {
+                            return Err(ParserError::FlagNotAllowed(flag_type))
+                        }
+
+                        function.add_flag(flag_type)
+                    },
                     Statement::Class(ref mut class) => {
                         if matches!(flag_type, Flag::Final | Flag::Abstract) && class.has_flags() {
                             return Err(ParserError::FlagNotAllowed(flag_type));
