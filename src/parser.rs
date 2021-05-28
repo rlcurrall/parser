@@ -21,6 +21,7 @@ impl<'p> Parser<'p> {
         Self { lexer }
     }
 
+    #[allow(clippy::needless_collect)]
     fn match_token(lexer: &mut Lexer<'p>, token: Token<'p>) -> Result<Statement, ParserError<'p>> {
         let kind = token.kind;
 
@@ -77,7 +78,7 @@ impl<'p> Parser<'p> {
                     let next = lexer.next();
 
                     let next = match next {
-                        Some(t) => next.unwrap(),
+                        Some(_) => next.unwrap(),
                         None => break,
                     };
 
@@ -191,7 +192,7 @@ impl<'p> Parser<'p> {
                             kind: TokenType::Extends,
                             ..
                         }) => {
-                            if implements.len() >= 1 {
+                            if !implements.is_empty() {
                                 let t = next.unwrap();
 
                                 return Err(ParserError::UnexpectedToken(t.kind, t.slice));
@@ -230,7 +231,7 @@ impl<'p> Parser<'p> {
                                         kind: TokenType::LeftBrace,
                                         ..
                                     }) => {
-                                        if implements.len() >= 1 {
+                                        if !implements.is_empty() {
                                             break 'outer;
                                         }
 
@@ -275,7 +276,7 @@ impl<'p> Parser<'p> {
                                         .clone()
                                         .into_iter()
                                         .filter(|statement| match statement {
-                                            Statement::Function(function) => return function.name == *function_name,
+                                            Statement::Function(function) => function.name == *function_name,
                                             _ => false,
                                         })
                                         .collect();

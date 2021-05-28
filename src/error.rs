@@ -1,5 +1,4 @@
 use crate::Flag;
-use crate::Function;
 use crate::Statement;
 
 use std::convert::From;

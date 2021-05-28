@@ -4,9 +4,11 @@ pub struct BindingPower;
 
 impl BindingPower {
     pub fn postfix(kind: TokenType) -> Option<(u8, ())> {
-        Some(match kind {
-            _ => return None,
-        })
+        None
+
+        // Some(match kind {
+        //     _ => return None,
+        // })
     }
 
     pub fn infix(kind: TokenType) -> Option<(u8, u8)> {

@@ -7,7 +7,7 @@ use serde::Serialize;
 pub struct If {
     condition: Expression,
     then: Vec<Statement>,
-    else_ifs: Vec<Box<Statement>>,
+    else_ifs: Vec<Statement>,
     r#else: Option<Box<Statement>>,
 }
 
@@ -15,7 +15,7 @@ impl If {
     pub fn new(
         condition: Expression,
         then: Vec<Statement>,
-        else_ifs: Vec<Box<Statement>>,
+        else_ifs: Vec<Statement>,
         r#else: Option<Box<Statement>>,
     ) -> Self {
         Self {
