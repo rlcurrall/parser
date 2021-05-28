@@ -23,11 +23,11 @@ pub use statement::Statement;
 
 #[wasm_bindgen]
 #[no_mangle]
-pub fn parse(source: &str) -> JsValue {
-    let lexer = Lexer::new(source);
-    let mut parser = Parser::new(lexer);
+pub fn parse(source: &str,) -> JsValue {
+    let lexer = Lexer::new(source,);
+    let mut parser = Parser::new(lexer,);
 
     let program = parser.all();
 
-    JsValue::from_serde(&program.unwrap()).unwrap()
+    JsValue::from_serde(&program.unwrap(),).unwrap()
 }
