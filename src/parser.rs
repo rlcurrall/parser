@@ -21,14 +21,6 @@ impl<'p> Parser<'p> {
         Self { lexer }
     }
 
-    fn next(&mut self) -> Option<Result<Statement, ParserError<'p>>> {
-        if let Some(token) = self.lexer.next() {
-            Some(Parser::match_token(&mut self.lexer, token))
-        } else {
-            Some(Err(ParserError::Unknown))
-        }
-    }
-
     fn match_token<'n>(lexer: &'n mut Lexer<'p>, token: Token<'p>) -> Result<Statement, ParserError<'p>> {
         let kind = token.kind;
 
@@ -82,7 +74,7 @@ impl<'p> Parser<'p> {
                 let mut r#else = None;
 
                 loop {
-                    let next = lexer.clone().peek();
+                    let next = lexer.next();
 
                     let next = match next {
                         Some(t) => next.unwrap(),
