@@ -11,9 +11,13 @@ pub struct Property {
 }
 
 impl Property {
-
     pub fn new(name: String, flags: Vec<Flag>, type_hint: Option<String>, default: Option<Expression>) -> Self {
-        Self { name, flags, type_hint, default }
+        Self {
+            name,
+            flags,
+            type_hint,
+            default,
+        }
     }
 }
 
@@ -31,8 +35,11 @@ impl Flaggable for Property {
     }
 
     fn has_visiblity_flag(&self) -> bool {
-        self.flags.clone().into_iter().filter(|flag| {
-            flag.is_visibility_flag()
-        }).count() >= 1
+        self.flags
+            .clone()
+            .into_iter()
+            .filter(|flag| flag.is_visibility_flag())
+            .count()
+            >= 1
     }
 }

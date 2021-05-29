@@ -2,14 +2,14 @@ use crate::BindingPower;
 use crate::Class;
 use crate::Expression;
 use crate::ParserError;
+use crate::Property;
 use crate::Statement;
 use crate::{Else, If};
 use crate::{Flag, Flaggable};
 use crate::{Function, FunctionParameter};
-use crate::Property;
 
-use std::iter::Iterator;
 use std::borrow::BorrowMut;
+use std::iter::Iterator;
 use tusk_lexer::{Lexer, Token, TokenType};
 
 type Program = Vec<Statement>;
@@ -185,7 +185,7 @@ impl<'p> Parser<'p> {
                         property.add_flag(flag_type);
 
                         statement = Statement::Property(property)
-                    },
+                    }
                     Statement::Property(ref mut property) => {
                         if flag_type == Flag::Final || flag_type == Flag::Abstract {
                             return Err(ParserError::FlagNotAllowed(flag_type, "properties".to_owned()));
@@ -196,17 +196,16 @@ impl<'p> Parser<'p> {
                         }
 
                         if flag_type.is_visibility_flag() && property.has_visiblity_flag() {
-                            return Err(ParserError::FlagNotAllowed(flag_type, "properties with existing visiblity flags".to_owned()))
+                            return Err(ParserError::FlagNotAllowed(
+                                flag_type,
+                                "properties with existing visiblity flags".to_owned(),
+                            ));
                         }
 
                         property.add_flag(flag_type)
-                    },
-                    Statement::Expression(Expression::Assign(ref variable, ref default)) => {
-
-                    },
-                    _ => {
-                        return Err(ParserError::Unknown)
-                    },
+                    }
+                    Statement::Expression(Expression::Assign(ref variable, ref default)) => {}
+                    _ => return Err(ParserError::Unknown),
                 }
 
                 statement
@@ -478,7 +477,7 @@ impl<'p> Parser<'p> {
                         None => return Err(ParserError::UnexpectedEndOfFile),
                         _ => {
                             let statement = self.match_token(next.unwrap())?;
-                            
+
                             body.push(statement);
                         }
                     }
@@ -533,11 +532,7 @@ impl<'p> Parser<'p> {
         }
     }
 
-    fn parse_expression<'n>(
-        &mut self,
-        bp: u8,
-        maybe_token: Option<Token>,
-    ) -> Result<Expression, ParserError<'p>> {
+    fn parse_expression<'n>(&mut self, bp: u8, maybe_token: Option<Token>) -> Result<Expression, ParserError<'p>> {
         let next = if maybe_token.is_none() {
             self.lexer.next()
         } else {
@@ -579,16 +574,21 @@ impl<'p> Parser<'p> {
                     let next = self.lexer.peek();
 
                     match next {
-                        Some(Token { kind: TokenType::RightBracket, .. }) => {
+                        Some(Token {
+                            kind: TokenType::RightBracket,
+                            ..
+                        }) => {
                             self.lexer.next();
-                            
-                            break
-                        },
-                        Some(Token { kind: TokenType::Comma, .. }) => {
+
+                            break;
+                        }
+                        Some(Token {
+                            kind: TokenType::Comma, ..
+                        }) => {
                             self.lexer.next();
 
                             continue;
-                        },
+                        }
                         None => return Err(ParserError::UnexpectedEndOfFile),
                         _ => {
                             let expression = self.parse_expression(0, None)?;
@@ -596,47 +596,48 @@ impl<'p> Parser<'p> {
                             match expression {
                                 Expression::ArrayItem { ref key, .. } => {
                                     match **key {
-                                        Expression::Integer(i) => {
-                                            counter = i + 1
-                                        },
-                                        Expression::Float(f) => {
-                                            counter = (f as i64) + 1
-                                        }
-                                        _ => ()
+                                        Expression::Integer(i) => counter = i + 1,
+                                        Expression::Float(f) => counter = (f as i64) + 1,
+                                        _ => (),
                                     }
 
                                     items.push(expression)
-                                },
+                                }
                                 _ => {
                                     let key = Expression::Integer(counter.clone());
-                                    
+
                                     items.push(Expression::ArrayItem {
-                                        key: Box::new(key), value: Box::new(expression),
+                                        key: Box::new(key),
+                                        value: Box::new(expression),
                                     });
 
                                     counter += 1
-                                },
+                                }
                             }
                         }
                     }
                 }
-                
+
                 Expression::Array(items)
-            },
+            }
             TokenType::Identifier => {
                 match self.lexer.clone().next() {
-                    Some(Token { kind: TokenType::Variable, slice, .. }) => {
+                    Some(Token {
+                        kind: TokenType::Variable,
+                        slice,
+                        ..
+                    }) => {
                         let mut buffer = slice.to_string();
                         // remove the $
                         buffer.remove(0);
 
                         self.lexer.next();
 
-                        Expression::TypedVariable(next.slice.to_owned(), buffer) 
-                    },
-                    _ => Expression::Identifier(next.slice.to_owned())
+                        Expression::TypedVariable(next.slice.to_owned(), buffer)
+                    }
+                    _ => Expression::Identifier(next.slice.to_owned()),
                 }
-            },
+            }
             _ => {
                 unimplemented!()
             }
@@ -663,9 +664,10 @@ impl<'p> Parser<'p> {
                         let next = self.lexer.next();
 
                         let expression = match next {
-                            Some(Token { kind: TokenType::RightBracket, .. }) => {  
-                                None
-                            },
+                            Some(Token {
+                                kind: TokenType::RightBracket,
+                                ..
+                            }) => None,
                             None => return Err(ParserError::UnexpectedEndOfFile),
                             _ => {
                                 let index = self.parse_expression(0, next)?;
@@ -677,8 +679,8 @@ impl<'p> Parser<'p> {
                         };
 
                         Expression::ArrayAccess(Box::new(lhs.clone()), expression)
-                    },
-                    _ => unreachable!()
+                    }
+                    _ => unreachable!(),
                 };
             } else if let Some((lbp, rbp)) = BindingPower::infix(op.kind) {
                 if lbp < bp {

@@ -11,7 +11,6 @@ pub enum BinaryOp {
 }
 
 impl From<TokenType> for BinaryOp {
-
     fn from(kind: TokenType) -> Self {
         use TokenType::*;
 

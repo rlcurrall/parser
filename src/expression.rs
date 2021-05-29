@@ -21,8 +21,8 @@ pub enum Expression {
     ArrayAccess(Box<Expression>, Option<Box<Expression>>),
     ArrayItem {
         key: Box<Expression>,
-        value: Box<Expression>
-    }
+        value: Box<Expression>,
+    },
 }
 
 impl Expression {
