@@ -616,6 +616,8 @@ impl<'p> Parser<'p> {
                     }
                     _ => unreachable!(),
                 };
+
+                continue;
             } else if let Some((lbp, rbp)) = BindingPower::infix(op.kind) {
                 if lbp < bp {
                     break;
