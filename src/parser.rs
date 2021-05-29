@@ -520,6 +520,13 @@ impl<'p> Parser<'p> {
             TokenType::True => Expression::from(true),
             TokenType::False => Expression::from(false),
             TokenType::Null => Expression::Null,
+            TokenType::LeftParen => {
+                let expression = self.parse_expression(0, None)?;
+
+                self.expect_token(TokenType::RightParen, ")")?;
+
+                expression
+            },
             TokenType::LeftBracket => {
                 let mut items = Vec::new();
                 let mut counter = 0;
