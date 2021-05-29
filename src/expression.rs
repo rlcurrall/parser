@@ -20,6 +20,14 @@ pub enum Expression {
     Array(Vec<Expression>),
     ArrayAccess(Box<Expression>, Option<Box<Expression>>),
     ArrayItem { key: Box<Expression>, value: Box<Expression> },
+    New {
+        class: Box<Expression>,
+        args: Vec<Expression>,
+    },
+    Call {
+        target: Box<Expression>,
+        args: Vec<Expression>,
+    },
 }
 
 impl Expression {

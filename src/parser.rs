@@ -500,6 +500,27 @@ impl<'p> Parser<'p> {
         let next = next.unwrap();
 
         let mut lhs = match next.kind {
+            TokenType::New => {
+                let mut class = self.parse_expression(0, None)?;
+                let mut args = Vec::new();
+
+                match class {
+                    Expression::Identifier(..) => (),
+                    Expression::Call { target, args: call_args } => {
+                        class = *target.clone();
+                        
+                        for arg in call_args {
+                            args.push(arg);
+                        }
+                    },
+                    _ => return Err(ParserError::UnexpectedExpression(class))
+                };
+
+                Expression::New {
+                    class: Box::new(class),
+                    args: args,
+                }
+            },
             TokenType::String => {
                 let mut buffer: String = next.slice.to_owned();
                 // remove the quotes
@@ -636,6 +657,39 @@ impl<'p> Parser<'p> {
                         };
 
                         Expression::ArrayAccess(Box::new(lhs.clone()), expression)
+                    }
+                    TokenType::LeftParen => {
+                        let mut args = Vec::new();
+
+                        loop {
+                            let next = self.lexer.next();
+
+                            let token = match next {
+                                Some(t) => t,
+                                None => return Err(ParserError::UnexpectedEndOfFile),
+                            };
+
+                            match token.kind {
+                                TokenType::RightParen => break,
+                                TokenType::Comma => {
+                                    if args.is_empty() {
+                                        return Err(ParserError::UnexpectedToken(TokenType::Comma, ","))
+                                    }
+
+                                    continue
+                                },
+                                _ => {
+                                    let expression = self.parse_expression(0, next)?;
+
+                                    args.push(expression)
+                                }
+                            }
+                        }
+
+                        Expression::Call {
+                            target: Box::new(lhs),
+                            args: args,
+                        }
                     }
                     _ => unreachable!(),
                 };
