@@ -680,9 +680,7 @@ impl<'p> Parser<'p> {
                     },
                     _ => unreachable!()
                 };
-            }
-
-            if let Some((lbp, rbp)) = BindingPower::infix(op.kind) {
+            } else if let Some((lbp, rbp)) = BindingPower::infix(op.kind) {
                 if lbp < bp {
                     break;
                 }

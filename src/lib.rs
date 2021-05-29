@@ -15,7 +15,6 @@ mod if_statement;
 mod parser;
 mod property;
 mod statement;
-mod parser_v2;
 
 pub use binary_op::BinaryOp;
 pub use binding_power::BindingPower;
@@ -31,7 +30,6 @@ pub use if_statement::If;
 pub use parser::Parser;
 pub use property::Property;
 pub use statement::Statement;
-pub use parser_v2::Parser as ParserPlusPlus;
 
 #[wasm_bindgen]
 #[no_mangle]
