@@ -18,4 +18,6 @@ pub enum Statement {
     Property(Property),
     If(If),
     Else(Else),
+    Use(Expression),
+    UseTrait(Expression),
 }

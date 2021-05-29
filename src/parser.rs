@@ -29,6 +29,18 @@ impl<'p> Parser<'p> {
 
         Ok(match kind {
             TokenType::OpenTag => Statement::OpenTag,
+            TokenType::Use => {
+                let expression = self.parse_expression(0, None)?;
+
+                match expression {
+                    Expression::Identifier(..) => {
+                        self.expect_token(TokenType::SemiColon, ";")?;
+                        
+                        Statement::Use(expression)
+                    },
+                    _ => return Err(ParserError::UnexpectedExpression(expression))
+                }
+            },
             TokenType::Echo => {
                 let expression = self.parse_expression(0, None)?;
 
@@ -275,7 +287,7 @@ impl<'p> Parser<'p> {
                         }) => break,
                         None => return Err(ParserError::UnexpectedEndOfFile),
                         _ => {
-                            let statement = self.match_token(next.unwrap())?;
+                            let mut statement = self.match_token(next.unwrap())?;
 
                             match &statement {
                                 Statement::Function(Function { name: function_name, .. }) => {
@@ -292,6 +304,9 @@ impl<'p> Parser<'p> {
                                         return Err(ParserError::MethodAlreadyExists(function_name.clone()));
                                     }
                                 }
+                                Statement::Use(expression) => {
+                                    statement = Statement::UseTrait(expression.clone())
+                                },
                                 Statement::Property(Property { name: property_name, .. }) => {
                                     let matches: Vec<Statement> = body
                                         .clone()

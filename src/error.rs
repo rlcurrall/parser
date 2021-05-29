@@ -1,5 +1,6 @@
 use crate::Flag;
 use crate::Statement;
+use crate::Expression;
 
 use std::convert::From;
 use std::num::ParseFloatError;
@@ -24,6 +25,8 @@ pub enum ParserError<'pe> {
 
     #[error("Unexpected statement {0:?}.")]
     UnexpectedStatement(Statement),
+    #[error("Unexpected expression {0:?}.")]
+    UnexpectedExpression(Expression),
 
     #[error("The method `{0}` has already been defined.")]
     MethodAlreadyExists(String),
