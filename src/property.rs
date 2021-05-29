@@ -1,5 +1,6 @@
 use crate::Expression;
 use crate::{Flag, Flaggable};
+use crate::Nullable;
 use serde::Serialize;
 
 #[derive(Debug, PartialEq, Clone, Serialize)]
@@ -18,6 +19,16 @@ impl Property {
             type_hint,
             default,
         }
+    }
+}
+
+impl Nullable for Property {
+    fn is_nullable(&self) -> bool {
+        if self.type_hint.is_none() {
+            return false;
+        }
+
+        self.type_hint.clone().unwrap().starts_with("?")
     }
 }
 

@@ -1,11 +1,5 @@
 <?php
 
-namespace App\Http\Components;
-
-use Radio\Radio;
-use PhpParser\Error;
-use PhpParser\ParserFactory;
-
 class AST
 {
     use Radio;

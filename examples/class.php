@@ -2,5 +2,5 @@
 
 class Example {
 
-    public static string $example;
+    public static ?string $example;
 }

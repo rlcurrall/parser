@@ -15,6 +15,7 @@ mod if_statement;
 mod parser;
 mod property;
 mod statement;
+mod nullable;
 
 pub use binary_op::BinaryOp;
 pub use binding_power::BindingPower;
@@ -27,6 +28,7 @@ pub use function::Function;
 pub use function::FunctionParameter;
 pub use if_statement::Else;
 pub use if_statement::If;
+pub use nullable::Nullable;
 pub use parser::Parser;
 pub use property::Property;
 pub use statement::Statement;

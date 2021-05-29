@@ -6,6 +6,7 @@ use crate::Property;
 use crate::Statement;
 use crate::{Else, If};
 use crate::{Flag, Flaggable};
+use crate::Nullable;
 use crate::{Function, FunctionParameter};
 
 use std::borrow::BorrowMut;
@@ -351,7 +352,7 @@ impl<'p> Parser<'p> {
                             next = self.lexer.next();
                         }
                         Some(Token {
-                            kind: TokenType::Identifier | TokenType::Variable,
+                            kind: TokenType::Identifier | TokenType::NullableIdentifier | TokenType::Variable,
                             ..
                         }) => (),
                         None => return Err(ParserError::UnexpectedEndOfFile),
@@ -368,8 +369,8 @@ impl<'p> Parser<'p> {
                     match next {
                         Some(
                             t @ Token {
-                                kind: TokenType::Identifier, ..
-                            },
+                                kind: TokenType::Identifier | TokenType::NullableIdentifier, ..
+                            }
                         ) => type_hint = Some(t.slice.to_string()),
                         Some(t @ Token { kind: TokenType::Variable, .. }) => {
                             let mut buffer: String = t.slice.to_string();
@@ -570,7 +571,7 @@ impl<'p> Parser<'p> {
 
                 Expression::Array(items)
             }
-            TokenType::Identifier => {
+            TokenType::Identifier | TokenType::NullableIdentifier => {
                 match self.lexer.clone().next() {
                     Some(Token {
                         kind: TokenType::Variable,
