@@ -19,10 +19,7 @@ pub enum Expression {
     Concat(Box<Expression>, Box<Expression>),
     Array(Vec<Expression>),
     ArrayAccess(Box<Expression>, Option<Box<Expression>>),
-    ArrayItem {
-        key: Box<Expression>,
-        value: Box<Expression>,
-    },
+    ArrayItem { key: Box<Expression>, value: Box<Expression> },
 }
 
 impl Expression {

@@ -14,13 +14,7 @@ pub struct Function {
 }
 
 impl Function {
-    pub fn new(
-        name: String,
-        parameters: Vec<FunctionParameter>,
-        body: Vec<Statement>,
-        return_type_hint: Option<String>,
-        flags: Vec<Flag>,
-    ) -> Self {
+    pub fn new(name: String, parameters: Vec<FunctionParameter>, body: Vec<Statement>, return_type_hint: Option<String>, flags: Vec<Flag>) -> Self {
         Self {
             name,
             parameters,
@@ -45,12 +39,7 @@ impl Flaggable for Function {
     }
 
     fn has_visiblity_flag(&self) -> bool {
-        self.flags
-            .clone()
-            .into_iter()
-            .filter(|flag| flag.is_visibility_flag())
-            .count()
-            > 1
+        self.flags.clone().into_iter().filter(|flag| flag.is_visibility_flag()).count() > 1
     }
 }
 
@@ -63,10 +52,6 @@ pub struct FunctionParameter {
 
 impl FunctionParameter {
     pub fn new(name: String, type_hint: Option<String>, default: Option<Expression>) -> Self {
-        Self {
-            name,
-            type_hint,
-            default,
-        }
+        Self { name, type_hint, default }
     }
 }

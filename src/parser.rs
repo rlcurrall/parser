@@ -52,8 +52,7 @@ impl<'p> Parser<'p> {
 
                     match next {
                         Some(Token {
-                            kind: TokenType::RightBrace,
-                            ..
+                            kind: TokenType::RightBrace, ..
                         }) => {
                             did_find_right_brace = true;
 
@@ -95,8 +94,7 @@ impl<'p> Parser<'p> {
 
                                 match next {
                                     Some(Token {
-                                        kind: TokenType::RightBrace,
-                                        ..
+                                        kind: TokenType::RightBrace, ..
                                     }) => {
                                         did_find_right_brace = true;
 
@@ -130,14 +128,7 @@ impl<'p> Parser<'p> {
 
                 Statement::Return(expression)
             }
-            flag
-            @
-            (TokenType::Public
-            | TokenType::Protected
-            | TokenType::Private
-            | TokenType::Final
-            | TokenType::Abstract
-            | TokenType::Static) => {
+            flag @ (TokenType::Public | TokenType::Protected | TokenType::Private | TokenType::Final | TokenType::Abstract | TokenType::Static) => {
                 let next = self.lexer.next();
 
                 if next.is_none() {
@@ -196,10 +187,7 @@ impl<'p> Parser<'p> {
                         }
 
                         if flag_type.is_visibility_flag() && property.has_visiblity_flag() {
-                            return Err(ParserError::FlagNotAllowed(
-                                flag_type,
-                                "properties with existing visiblity flags".to_owned(),
-                            ));
+                            return Err(ParserError::FlagNotAllowed(flag_type, "properties with existing visiblity flags".to_owned()));
                         }
 
                         property.add_flag(flag_type)
@@ -219,10 +207,7 @@ impl<'p> Parser<'p> {
                     let next = self.lexer.next();
 
                     match next {
-                        Some(Token {
-                            kind: TokenType::Extends,
-                            ..
-                        }) => {
+                        Some(Token { kind: TokenType::Extends, .. }) => {
                             if !implements.is_empty() {
                                 let t = next.unwrap();
 
@@ -234,8 +219,7 @@ impl<'p> Parser<'p> {
                             extends = identifier.slice.to_string();
                         }
                         Some(Token {
-                            kind: TokenType::Implements,
-                            ..
+                            kind: TokenType::Implements, ..
                         }) => {
                             let identifier = self.expect_token(TokenType::Identifier, "")?;
 
@@ -246,21 +230,17 @@ impl<'p> Parser<'p> {
 
                                 match next {
                                     Some(Token {
-                                        kind: TokenType::Identifier,
-                                        ..
+                                        kind: TokenType::Identifier, ..
                                     }) => {
                                         implements.push(next.unwrap().slice.to_string());
                                     }
-                                    Some(Token {
-                                        kind: TokenType::Comma, ..
-                                    }) => {
+                                    Some(Token { kind: TokenType::Comma, .. }) => {
                                         let identifier = self.expect_token(TokenType::Identifier, "")?;
 
                                         implements.push(identifier.slice.to_string());
                                     }
                                     Some(Token {
-                                        kind: TokenType::LeftBrace,
-                                        ..
+                                        kind: TokenType::LeftBrace, ..
                                     }) => {
                                         if !implements.is_empty() {
                                             break 'outer;
@@ -278,8 +258,7 @@ impl<'p> Parser<'p> {
                             }
                         }
                         Some(Token {
-                            kind: TokenType::LeftBrace,
-                            ..
+                            kind: TokenType::LeftBrace, ..
                         }) => break,
                         _ => return Err(ParserError::Unknown),
                     }
@@ -292,17 +271,14 @@ impl<'p> Parser<'p> {
 
                     match next {
                         Some(Token {
-                            kind: TokenType::RightBrace,
-                            ..
+                            kind: TokenType::RightBrace, ..
                         }) => break,
                         None => return Err(ParserError::UnexpectedEndOfFile),
                         _ => {
                             let statement = self.match_token(next.unwrap())?;
 
                             match &statement {
-                                Statement::Function(Function {
-                                    name: function_name, ..
-                                }) => {
+                                Statement::Function(Function { name: function_name, .. }) => {
                                     let matches: Vec<Statement> = body
                                         .clone()
                                         .into_iter()
@@ -316,9 +292,7 @@ impl<'p> Parser<'p> {
                                         return Err(ParserError::MethodAlreadyExists(function_name.clone()));
                                     }
                                 }
-                                Statement::Property(Property {
-                                    name: property_name, ..
-                                }) => {
+                                Statement::Property(Property { name: property_name, .. }) => {
                                     let matches: Vec<Statement> = body
                                         .clone()
                                         .into_iter()
@@ -355,13 +329,10 @@ impl<'p> Parser<'p> {
                     match next {
                         // break when finding a ), no more parameters
                         Some(Token {
-                            kind: TokenType::RightParen,
-                            ..
+                            kind: TokenType::RightParen, ..
                         }) => break,
                         // consume trailing commas..
-                        Some(Token {
-                            kind: TokenType::Comma, ..
-                        }) => {
+                        Some(Token { kind: TokenType::Comma, .. }) => {
                             next = self.lexer.next();
                         }
                         Some(Token {
@@ -381,21 +352,11 @@ impl<'p> Parser<'p> {
 
                     match next {
                         Some(
-                            t
-                            @
-                            Token {
-                                kind: TokenType::Identifier,
-                                ..
+                            t @ Token {
+                                kind: TokenType::Identifier, ..
                             },
                         ) => type_hint = Some(t.slice.to_string()),
-                        Some(
-                            t
-                            @
-                            Token {
-                                kind: TokenType::Variable,
-                                ..
-                            },
-                        ) => {
+                        Some(t @ Token { kind: TokenType::Variable, .. }) => {
                             let mut buffer: String = t.slice.to_string();
                             buffer.remove(0);
 
@@ -417,13 +378,7 @@ impl<'p> Parser<'p> {
                     let next = self.lexer.next();
                     let mut default = None;
 
-                    if matches!(
-                        next,
-                        Some(Token {
-                            kind: TokenType::Equals,
-                            ..
-                        })
-                    ) {
+                    if matches!(next, Some(Token { kind: TokenType::Equals, .. })) {
                         default = Some(self.parse_expression(0, None)?);
                     }
 
@@ -433,13 +388,7 @@ impl<'p> Parser<'p> {
                 let mut return_type_hint = None;
                 let next = self.lexer.next();
 
-                if matches!(
-                    next,
-                    Some(Token {
-                        kind: TokenType::Colon,
-                        ..
-                    })
-                ) {
+                if matches!(next, Some(Token { kind: TokenType::Colon, .. })) {
                     let return_type_token = self.expect_token(TokenType::Identifier, "")?;
 
                     return_type_hint = Some(return_type_token.slice.to_string());
@@ -471,8 +420,7 @@ impl<'p> Parser<'p> {
 
                     match next {
                         Some(Token {
-                            kind: TokenType::RightBrace,
-                            ..
+                            kind: TokenType::RightBrace, ..
                         }) => break,
                         None => return Err(ParserError::UnexpectedEndOfFile),
                         _ => {
@@ -483,13 +431,7 @@ impl<'p> Parser<'p> {
                     }
                 }
 
-                Statement::Function(Function::new(
-                    identifier.slice.to_owned(),
-                    parameters,
-                    body,
-                    return_type_hint,
-                    Vec::new(),
-                ))
+                Statement::Function(Function::new(identifier.slice.to_owned(), parameters, body, return_type_hint, Vec::new()))
             }
             TokenType::String => {
                 let mut buffer: String = token.slice.to_string();
@@ -533,11 +475,7 @@ impl<'p> Parser<'p> {
     }
 
     fn parse_expression<'n>(&mut self, bp: u8, maybe_token: Option<Token>) -> Result<Expression, ParserError<'p>> {
-        let next = if maybe_token.is_none() {
-            self.lexer.next()
-        } else {
-            maybe_token
-        };
+        let next = if maybe_token.is_none() { self.lexer.next() } else { maybe_token };
 
         if next.is_none() {
             return Err(ParserError::UnexpectedEndOfFile);
@@ -575,16 +513,13 @@ impl<'p> Parser<'p> {
 
                     match next {
                         Some(Token {
-                            kind: TokenType::RightBracket,
-                            ..
+                            kind: TokenType::RightBracket, ..
                         }) => {
                             self.lexer.next();
 
                             break;
                         }
-                        Some(Token {
-                            kind: TokenType::Comma, ..
-                        }) => {
+                        Some(Token { kind: TokenType::Comma, .. }) => {
                             self.lexer.next();
 
                             continue;
@@ -665,8 +600,7 @@ impl<'p> Parser<'p> {
 
                         let expression = match next {
                             Some(Token {
-                                kind: TokenType::RightBracket,
-                                ..
+                                kind: TokenType::RightBracket, ..
                             }) => None,
                             None => return Err(ParserError::UnexpectedEndOfFile),
                             _ => {

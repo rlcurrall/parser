@@ -12,12 +12,7 @@ pub struct If {
 }
 
 impl If {
-    pub fn new(
-        condition: Expression,
-        then: Vec<Statement>,
-        else_ifs: Vec<Statement>,
-        r#else: Option<Box<Statement>>,
-    ) -> Self {
+    pub fn new(condition: Expression, then: Vec<Statement>, else_ifs: Vec<Statement>, r#else: Option<Box<Statement>>) -> Self {
         Self {
             condition,
             then,
