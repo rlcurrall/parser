@@ -1,7 +1,7 @@
 use std::env;
 use std::fs;
 use tusk_lexer::Lexer;
-use tusk_parser::Parser;
+use tusk_parser::ParserPlusPlus;
 
 fn main() {
     let filepath = match env::args().nth(1) {
@@ -15,7 +15,7 @@ fn main() {
     let contents = fs::read_to_string(filepath).unwrap();
 
     let lexer = Lexer::new(contents.as_str());
-    let mut parser = Parser::new(lexer);
+    let mut parser = ParserPlusPlus::new(lexer);
 
     let program = parser.all();
 

@@ -1,5 +1,3 @@
 <?php
 
-$test = 'Testing' . 'Amazing';
-
-$test =  1 + 2 * 3 / 4;
+$test[2] = 'cool';

@@ -10,8 +10,9 @@ pub enum BinaryOp {
     Modulo,
 }
 
-impl BinaryOp {
-    pub fn from_token_type(kind: TokenType) -> Self {
+impl From<TokenType> for BinaryOp {
+
+    fn from(kind: TokenType) -> Self {
         use TokenType::*;
 
         match kind {

@@ -18,6 +18,7 @@ pub enum Expression {
     Assign(Box<Expression>, Box<Expression>),
     Concat(Box<Expression>, Box<Expression>),
     Array(Vec<Expression>),
+    ArrayAccess(Box<Expression>, Option<Box<Expression>>),
     ArrayItem {
         key: Box<Expression>,
         value: Box<Expression>
@@ -32,7 +33,7 @@ impl Expression {
         let rhs = Box::new(rhs);
 
         match *operator {
-            Plus | Minus | Asterisk | Slash | Percent => Self::Binary(lhs, BinaryOp::from_token_type(*operator), rhs),
+            Plus | Minus | Asterisk | Slash | Percent => Self::Binary(lhs, BinaryOp::from(*operator), rhs),
             Period => Self::Concat(lhs, rhs),
             DoubleArrow => Self::ArrayItem { key: lhs, value: rhs },
             Equals => Self::Assign(lhs, rhs),
