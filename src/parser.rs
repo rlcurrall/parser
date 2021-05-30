@@ -649,7 +649,7 @@ impl<'p> Parser<'p> {
                             None => return Err(ParserError::UnexpectedEndOfFile),
                             _ => {
                                 let t = next.unwrap();
-
+                                
                                 return Err(ParserError::UnexpectedToken(t.kind, t.slice))
                             }
                         }
