@@ -639,6 +639,21 @@ impl<'p> Parser<'p> {
                 let op = self.lexer.next().unwrap();
 
                 lhs = match op.kind {
+                    TokenType::Arrow => {
+                        let next = self.lexer.next();
+
+                        match next {
+                            Some(t @ Token { kind: TokenType::Identifier, .. }) => {
+                                Expression::PropertyAccess(Box::new(lhs), Box::new(Expression::Identifier(t.slice.to_owned())))
+                            },
+                            None => return Err(ParserError::UnexpectedEndOfFile),
+                            _ => {
+                                let t = next.unwrap();
+
+                                return Err(ParserError::UnexpectedToken(t.kind, t.slice))
+                            }
+                        }
+                    },
                     TokenType::LeftBracket => {
                         let next = self.lexer.next();
 

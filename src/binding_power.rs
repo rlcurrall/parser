@@ -5,7 +5,7 @@ pub struct BindingPower;
 impl BindingPower {
     pub fn postfix(kind: TokenType) -> Option<(u8, ())> {
         Some(match kind {
-            TokenType::LeftBracket | TokenType::LeftParen => (19, ()),
+            TokenType::LeftBracket | TokenType::Arrow | TokenType::LeftParen => (19, ()),
             _ => return None,
         })
     }
