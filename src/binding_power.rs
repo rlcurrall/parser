@@ -10,6 +10,14 @@ impl BindingPower {
         })
     }
 
+    pub fn prefix(kind: TokenType) -> Option<((), u8)> {
+        Some(match kind {
+            TokenType::Not => ((), 99),
+            TokenType::Minus => ((), 98),
+            _ => return None
+        })
+    }
+
     pub fn infix(kind: TokenType) -> Option<(u8, u8)> {
         use TokenType::*;
 

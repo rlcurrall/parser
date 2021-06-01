@@ -35,7 +35,9 @@ pub enum Expression {
         method: Box<Expression>,
         args: Vec<Expression>
     },
-    Closure(Function)
+    Closure(Function),
+    Unary(Box<Expression>),
+    Negate(Box<Expression>),
 }
 
 impl Expression {

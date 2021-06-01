@@ -1082,7 +1082,33 @@ impl<'p> Parser<'p> {
                     }
                     _ => Expression::Identifier(next.slice.to_owned()),
                 }
-            }
+            },
+            TokenType::Minus => {
+                let maybe_bp = BindingPower::prefix(TokenType::Minus);
+
+                if maybe_bp.is_none() {
+                    return Err(ParserError::Unknown);
+                }
+
+                let ((), rbp) = maybe_bp.unwrap();
+
+                let rhs = self.parse_expression(rbp, None)?;
+
+                Expression::Unary(Box::new(rhs))
+            },
+            TokenType::Not => {
+                let maybe_bp = BindingPower::prefix(TokenType::Not);
+
+                if maybe_bp.is_none() {
+                    return Err(ParserError::Unknown);
+                }
+
+                let ((), rbp) = maybe_bp.unwrap();
+
+                let rhs = self.parse_expression(rbp, None)?;
+
+                Expression::Negate(Box::new(rhs))
+            },
             _ => {
                 unimplemented!()
             }
