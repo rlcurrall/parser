@@ -12,6 +12,7 @@ pub enum BinaryOp {
     BitwiseOr,
     BitwiseLeftShift,
     BitwiseRightShift,
+    BitwiseXor,
 }
 
 impl From<TokenType> for BinaryOp {
@@ -28,6 +29,7 @@ impl From<TokenType> for BinaryOp {
             BitwiseOr => Self::BitwiseOr,
             BitwiseLeftShift => Self::BitwiseLeftShift,
             BitwiseRightShift => Self::BitwiseRightShift,
+            BitwiseXor => Self::BitwiseXor,
             _ => unreachable!(),
         }
     }

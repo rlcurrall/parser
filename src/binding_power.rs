@@ -16,7 +16,8 @@ impl BindingPower {
         Some(match kind {
             Asterisk | Slash => (98, 99),
             BitwiseLeftShift | BitwiseRightShift => (96, 97),
-            BitwiseAnd => (13, 14),
+            BitwiseAnd => (94, 95),
+            BitwiseXor => (92, 93),
             BitwiseOr => (11, 12),
             Plus | Minus | Period => (9, 10),
             GreaterThan | LessThan | GreaterThanEquals | LessThanEquals => (7, 8),
