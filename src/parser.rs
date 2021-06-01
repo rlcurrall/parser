@@ -1109,6 +1109,19 @@ impl<'p> Parser<'p> {
 
                 Expression::Negate(Box::new(rhs))
             },
+            TokenType::BitwiseNot => {
+                let maybe_bp = BindingPower::prefix(TokenType::BitwiseNot);
+
+                if maybe_bp.is_none() {
+                    return Err(ParserError::Unknown);
+                }
+
+                let ((), rbp) = maybe_bp.unwrap();
+
+                let rhs = self.parse_expression(rbp, None)?;
+
+                Expression::BitwiseNot(Box::new(rhs))
+            },
             _ => {
                 unimplemented!()
             }

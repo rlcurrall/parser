@@ -38,6 +38,7 @@ pub enum Expression {
     Closure(Function),
     Unary(Box<Expression>),
     Negate(Box<Expression>),
+    BitwiseNot(Box<Expression>),
 }
 
 impl Expression {

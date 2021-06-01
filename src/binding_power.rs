@@ -12,6 +12,7 @@ impl BindingPower {
 
     pub fn prefix(kind: TokenType) -> Option<((), u8)> {
         Some(match kind {
+            TokenType::BitwiseNot => ((), 100),
             TokenType::Not => ((), 99),
             TokenType::Minus => ((), 98),
             _ => return None
