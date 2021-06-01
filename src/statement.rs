@@ -26,6 +26,12 @@ pub enum Statement {
         condition: Expression,
         body: Vec<Statement>
     },
+    Foreach {
+        expression: Expression,
+        key_var: Option<Expression>,
+        value_var: Expression,
+        body: Vec<Statement>,
+    },
     Use(Expression),
     UseTrait(Expression),
 }

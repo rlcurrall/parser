@@ -126,6 +126,67 @@ impl<'p> Parser<'p> {
 
                 Statement::DoWhile { condition, body }
             },
+            TokenType::Foreach => {
+                self.expect_token(TokenType::LeftParen, "(")?;
+
+                let left_hand = self.parse_expression(0, None)?;
+
+                self.expect_token(TokenType::As, "as")?;
+
+                let right_hand = self.parse_expression(0, None)?;
+                let mut key_var = None;
+                let mut value_var: Expression;
+
+                match right_hand {
+                    Expression::Variable(..) => {
+                        value_var = right_hand
+                    },
+                    Expression::ArrayItem { key, value } => {
+                        key_var = Some(*key);
+                        value_var = *value
+                    },
+                    _ => {
+                        return Err(ParserError::UnexpectedExpression(right_hand))
+                    }
+                };
+
+                self.expect_token(TokenType::RightParen, ")")?;
+                self.expect_token(TokenType::LeftBrace, "{")?;
+
+                let mut body = Vec::new();
+                let mut did_find_right_brace = false;
+
+                loop {
+                    let next = self.lexer.next();
+
+                    match next {
+                        Some(Token {
+                            kind: TokenType::RightBrace, ..
+                        }) => {
+                            did_find_right_brace = true;
+
+                            break;
+                        }
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => {
+                            let statement = self.match_token(next.unwrap())?;
+
+                            body.push(statement);
+                        }
+                    }
+                }
+
+                if !did_find_right_brace {
+                    self.expect_token(TokenType::RightBrace, "}")?;
+                }
+
+                Statement::Foreach {
+                    expression: left_hand,
+                    key_var: key_var,
+                    value_var: value_var,
+                    body: body,
+                }
+            },
             TokenType::If => {
                 self.expect_token(TokenType::LeftParen, "(")?;
 
