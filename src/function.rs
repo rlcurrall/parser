@@ -4,6 +4,12 @@ use crate::{Flag, Flaggable};
 
 use serde::Serialize;
 
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub enum ClosureType {
+    Long,
+    Short,
+}
+
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct Function {
     pub name: Option<String>,
@@ -11,16 +17,18 @@ pub struct Function {
     body: Vec<Statement>,
     return_type_hint: Option<String>,
     flags: Vec<Flag>,
+    closure_type: Option<ClosureType>,
 }
 
 impl Function {
-    pub fn new(name: Option<String>, parameters: Vec<FunctionParameter>, body: Vec<Statement>, return_type_hint: Option<String>, flags: Vec<Flag>) -> Self {
+    pub fn new(name: Option<String>, parameters: Vec<FunctionParameter>, body: Vec<Statement>, return_type_hint: Option<String>, flags: Vec<Flag>, closure_type: Option<ClosureType>) -> Self {
         Self {
             name,
             parameters,
             body,
             return_type_hint,
             flags,
+            closure_type,
         }
     }
 }

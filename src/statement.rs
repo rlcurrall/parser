@@ -10,6 +10,7 @@ use serde::Serialize;
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub enum Statement {
     OpenTag,
+    DocBlock(String),
     Echo(Expression),
     Return(Expression),
     Expression(Expression),

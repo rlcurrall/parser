@@ -5,3 +5,5 @@ amazing(static function (int $test): int {
 
     return 1;
 });
+
+amazing(fn ($test) => []);

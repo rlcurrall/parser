@@ -26,6 +26,7 @@ pub use flag::Flag;
 pub use flag::Flaggable;
 pub use function::Function;
 pub use function::FunctionParameter;
+pub use function::ClosureType;
 pub use if_statement::Else;
 pub use if_statement::If;
 pub use nullable::Nullable;
