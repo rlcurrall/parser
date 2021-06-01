@@ -259,7 +259,59 @@ impl<'p> Parser<'p> {
                     };
 
                     match next.kind {
+                        TokenType::ElseIf => {
+                            self.expect_left_paren()?;
+
+                            let condition = self.parse_expression(0, None)?;
+
+                            self.expect_right_paren()?;
+                            self.expect_left_brace()?;
+
+                            let mut body = Vec::new();
+                            let mut did_find_right_brace = false;
+
+                            loop {
+                                let next = self.lexer.next();
+
+                                match next {
+                                    Some(Token {
+                                        kind: TokenType::RightBrace, ..
+                                    }) => {
+                                        did_find_right_brace = true;
+
+                                        break;
+                                    }
+                                    None => return Err(ParserError::UnexpectedEndOfFile),
+                                    _ => {
+                                        let statement = self.match_token(next.unwrap())?;
+
+                                        body.push(statement);
+                                    }
+                                }
+                            }
+
+                            if !did_find_right_brace {
+                                self.expect_token(TokenType::RightBrace, "}")?;
+                            }
+
+                            else_ifs.push(Statement::ElseIf(If::new(condition, body, Vec::new(), None)))
+                        },
                         TokenType::Else => {
+                            let mut condition = None;
+                            let mut else_if = false;
+
+                            match self.lexer.peek() {
+                                Some(Token { kind: TokenType::If, .. }) => {
+                                    self.lexer.next();
+                                    else_if = true;
+                                    self.expect_left_paren()?;
+                                    condition = Some(self.parse_expression(0, None)?);
+                                    self.expect_right_paren()?;
+                                },
+                                _ => (),
+                                None => return Err(ParserError::UnexpectedEndOfFile),
+                            };
+
                             self.expect_token(TokenType::LeftBrace, "{")?;
 
                             let mut body = Vec::new();
@@ -289,7 +341,11 @@ impl<'p> Parser<'p> {
                                 self.expect_token(TokenType::RightBrace, "}")?;
                             }
 
-                            r#else = Some(Box::new(Statement::Else(Else::new(body))))
+                            if else_if {
+                                else_ifs.push(Statement::ElseIf(If::new(condition.unwrap(), body, Vec::new(), None)));
+                            } else {
+                                r#else = Some(Box::new(Statement::Else(Else::new(body))))
+                            }
                         }
                         _ => return Err(ParserError::UnexpectedToken(next.kind, next.slice)),
                     }
@@ -1138,6 +1194,22 @@ impl<'p> Parser<'p> {
         }
 
         Ok(lhs)
+    }
+
+    fn expect_left_paren(&mut self) -> Result<Token, ParserError<'p>> {
+        self.expect_token(TokenType::LeftParen, "(")
+    }
+
+    fn expect_right_paren(&mut self) -> Result<Token, ParserError<'p>> {
+        self.expect_token(TokenType::RightParen, ")")
+    }
+
+    fn expect_left_brace(&mut self) -> Result<Token, ParserError<'p>> {
+        self.expect_token(TokenType::LeftBrace, "{")
+    }
+
+    fn expect_right_brace(&mut self) -> Result<Token, ParserError<'p>> {
+        self.expect_token(TokenType::RightBrace, "}")
     }
 
     #[allow(clippy::while_let_on_iterator)]

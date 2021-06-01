@@ -20,6 +20,7 @@ pub enum Statement {
     Class(Class),
     Property(Property),
     If(If),
+    ElseIf(If),
     Else(Else),
     While {
         condition: Expression,
