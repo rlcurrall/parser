@@ -31,6 +31,30 @@ impl<'p> Parser<'p> {
         Ok(match kind {
             TokenType::OpenTag => Statement::OpenTag,
             TokenType::DocBlockComment => Statement::DocBlock(token.slice.to_owned()),
+            TokenType::Break => {
+                self.expect_token(TokenType::SemiColon, ";")?;
+
+                Statement::Break
+            },
+            TokenType::Continue => {
+                let next = self.lexer.peek();
+
+                match next {
+                    Some(Token { kind: TokenType::SemiColon, .. }) => {
+                        self.lexer.next();
+
+                        Statement::Continue(None)
+                    },
+                    None => return Err(ParserError::UnexpectedEndOfFile),
+                    _ => {
+                        let expression = self.parse_expression(0, None)?;  
+                        
+                        self.expect_token(TokenType::SemiColon, ";")?;
+
+                        Statement::Continue(Some(expression))
+                    }
+                }
+            },
             TokenType::Use => {
                 let expression = self.parse_expression(0, None)?;
 
