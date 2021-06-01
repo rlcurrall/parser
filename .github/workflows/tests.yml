@@ -2,7 +2,7 @@ on: [push]
 
 jobs:
   test:
-    name: tusk_lexer tests
+    name: tusk_parser tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
