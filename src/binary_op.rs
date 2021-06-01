@@ -8,6 +8,8 @@ pub enum BinaryOp {
     Multiply,
     Divide,
     Modulo,
+    BitwiseAnd,
+    BitwiseOr,
 }
 
 impl From<TokenType> for BinaryOp {
@@ -20,6 +22,8 @@ impl From<TokenType> for BinaryOp {
             Asterisk => Self::Multiply,
             Slash => Self::Divide,
             Percent => Self::Modulo,
+            BitwiseAnd => Self::BitwiseAnd,
+            BitwiseOr => Self::BitwiseOr,
             _ => unreachable!(),
         }
     }

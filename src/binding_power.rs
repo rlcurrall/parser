@@ -14,10 +14,12 @@ impl BindingPower {
         use TokenType::*;
 
         Some(match kind {
-            Asterisk | Slash => (13, 14),
-            Plus | Minus | Period => (11, 12),
-            GreaterThan | LessThan | GreaterThanEquals | LessThanEquals => (9, 10),
-            Equals | DoubleArrow => (2, 1),
+            Asterisk | Slash => (15, 16),
+            BitwiseAnd => (13, 14),
+            BitwiseOr => (11, 12),
+            Plus | Minus | Period => (9, 10),
+            GreaterThan | LessThan | GreaterThanEquals | LessThanEquals => (7, 8),
+            Equals | DoubleArrow => (1, 2),
             _ => return None,
         })
     }
