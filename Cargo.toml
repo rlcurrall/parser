@@ -10,7 +10,7 @@ repository = "https://github.com/tuskphp/parser"
 keywords = ["parser", "parsing", "php"]
 
 [dependencies]
-tusk_lexer = "0.4.5"
+tusk_lexer = "0.4.7"
 thiserror = "1.0.*"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
