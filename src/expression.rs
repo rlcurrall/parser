@@ -1,4 +1,5 @@
 use crate::BinaryOp;
+use crate::Function;
 
 use serde::Serialize;
 use tusk_lexer::TokenType;
@@ -33,7 +34,8 @@ pub enum Expression {
         target: Box<Expression>,
         method: Box<Expression>,
         args: Vec<Expression>
-    }
+    },
+    Closure(Function)
 }
 
 impl Expression {

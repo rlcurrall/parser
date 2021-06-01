@@ -440,7 +440,7 @@ impl<'p> Parser<'p> {
                                         .collect();
 
                                     if !matches.is_empty() {
-                                        return Err(ParserError::MethodAlreadyExists(function_name.clone()));
+                                        return Err(ParserError::MethodAlreadyExists(function_name.clone().unwrap()));
                                     }
                                 }
                                 Statement::Use(expression) => {
@@ -585,7 +585,7 @@ impl<'p> Parser<'p> {
                     }
                 }
 
-                Statement::Function(Function::new(identifier.slice.to_owned(), parameters, body, return_type_hint, Vec::new()))
+                Statement::Function(Function::new(Some(identifier.slice.to_owned()), parameters, body, return_type_hint, Vec::new()))
             }
             TokenType::String => {
                 let mut buffer: String = token.slice.to_string();
@@ -658,6 +658,143 @@ impl<'p> Parser<'p> {
                     class: Box::new(class),
                     args: args,
                 }
+            },
+            TokenType::Static => {
+                let mut expression = self.parse_expression(0, None)?;
+
+                match expression {
+                    Expression::Closure(ref mut function) => {
+                        if function.has_flags() {
+                            return Err(ParserError::CanOnlyHaveFlag(Flag::Static, "Anonymous functions".to_owned()))
+                        }
+
+                        function.add_flag(Flag::Static);
+                    },
+                    _ => {
+                        return Err(ParserError::UnexpectedExpression(expression))
+                    }
+                }
+
+                expression
+            },
+            TokenType::Function => {
+                self.expect_token(TokenType::LeftParen, "(")?;
+
+                let mut parameters: Vec<FunctionParameter> = Vec::new();
+
+                loop {
+                    let mut next = self.lexer.next();
+
+                    println!("{:?}", next);
+
+                    match next {
+                        // break when finding a ), no more parameters
+                        Some(Token {
+                            kind: TokenType::RightParen, ..
+                        }) => break,
+                        // consume trailing commas..
+                        Some(Token { kind: TokenType::Comma, .. }) => {
+                            next = self.lexer.next();
+                        }
+                        Some(Token {
+                            kind: TokenType::Identifier | TokenType::NullableIdentifier | TokenType::Variable,
+                            ..
+                        }) => (),
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => {
+                            let t = next.unwrap();
+
+                            return Err(ParserError::UnexpectedToken(t.kind, t.slice));
+                        }
+                    }
+
+                    let mut name = String::new();
+                    let mut type_hint = None;
+
+                    match next {
+                        Some(
+                            t @ Token {
+                                kind: TokenType::Identifier | TokenType::NullableIdentifier, ..
+                            }
+                        ) => type_hint = Some(t.slice.to_string()),
+                        Some(t @ Token { kind: TokenType::Variable, .. }) => {
+                            let mut buffer: String = t.slice.to_string();
+                            buffer.remove(0);
+
+                            name = buffer;
+                        }
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => return Err(ParserError::Unknown),
+                    }
+
+                    if type_hint.is_some() {
+                        let variable = self.expect_token(TokenType::Variable, "")?;
+
+                        let mut buffer: String = variable.slice.to_string();
+                        buffer.remove(0);
+
+                        name = buffer;
+                    }
+
+                    let next = self.lexer.peek();
+                    let mut default = None;
+
+                    if matches!(next, Some(Token { kind: TokenType::Equals, .. })) {
+                        self.lexer.next();
+
+                        default = Some(self.parse_expression(0, None)?);
+                    }
+
+                    parameters.push(FunctionParameter::new(name, type_hint, default))
+                }
+
+                let mut return_type_hint = None;
+                let next = self.lexer.next();
+
+                if matches!(next, Some(Token { kind: TokenType::Colon, .. })) {
+                    let return_type_token = self.expect_token(TokenType::Identifier, "")?;
+
+                    return_type_hint = Some(return_type_token.slice.to_string());
+
+                    self.expect_token(TokenType::LeftBrace, "{")?;
+                } else if next.is_some()
+                    && !matches!(
+                        next,
+                        Some(Token {
+                            kind: TokenType::LeftBrace,
+                            ..
+                        })
+                    )
+                {
+                    let next = next.unwrap();
+
+                    return Err(ParserError::ExpectedToken {
+                        expected_type: TokenType::LeftBrace,
+                        expected_slice: "{",
+                        got_type: next.kind,
+                        got_slice: next.slice,
+                    });
+                }
+
+                let mut body = Vec::new();
+
+                loop {
+                    let next = self.lexer.next();
+
+                    match next {
+                        Some(Token {
+                            kind: TokenType::RightBrace, ..
+                        }) => break,
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => {
+                            let statement = self.match_token(next.unwrap())?;
+
+                            body.push(statement);
+                        }
+                    }
+                }
+
+                Expression::Closure(Function::new(None, parameters, body, return_type_hint, Vec::new()))
             },
             TokenType::String => {
                 let mut buffer: String = next.slice.to_owned();

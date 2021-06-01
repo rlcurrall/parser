@@ -22,6 +22,8 @@ pub enum ParserError<'pe> {
     FlagNotAllowed(Flag, String),
     #[error("Flag {0:?} has already been declared.")]
     DuplicateFlag(Flag),
+    #[error("{1} can only have the {0:?} flag.")]
+    CanOnlyHaveFlag(Flag, String),
 
     #[error("Unexpected statement {0:?}.")]
     UnexpectedStatement(Statement),

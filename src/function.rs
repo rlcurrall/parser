@@ -6,7 +6,7 @@ use serde::Serialize;
 
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct Function {
-    pub name: String,
+    pub name: Option<String>,
     parameters: Vec<FunctionParameter>,
     body: Vec<Statement>,
     return_type_hint: Option<String>,
@@ -14,7 +14,7 @@ pub struct Function {
 }
 
 impl Function {
-    pub fn new(name: String, parameters: Vec<FunctionParameter>, body: Vec<Statement>, return_type_hint: Option<String>, flags: Vec<Flag>) -> Self {
+    pub fn new(name: Option<String>, parameters: Vec<FunctionParameter>, body: Vec<Statement>, return_type_hint: Option<String>, flags: Vec<Flag>) -> Self {
         Self {
             name,
             parameters,
