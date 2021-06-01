@@ -10,6 +10,8 @@ pub enum BinaryOp {
     Modulo,
     BitwiseAnd,
     BitwiseOr,
+    BitwiseLeftShift,
+    BitwiseRightShift,
 }
 
 impl From<TokenType> for BinaryOp {
@@ -24,6 +26,8 @@ impl From<TokenType> for BinaryOp {
             Percent => Self::Modulo,
             BitwiseAnd => Self::BitwiseAnd,
             BitwiseOr => Self::BitwiseOr,
+            BitwiseLeftShift => Self::BitwiseLeftShift,
+            BitwiseRightShift => Self::BitwiseRightShift,
             _ => unreachable!(),
         }
     }

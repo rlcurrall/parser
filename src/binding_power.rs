@@ -14,7 +14,8 @@ impl BindingPower {
         use TokenType::*;
 
         Some(match kind {
-            Asterisk | Slash => (15, 16),
+            Asterisk | Slash => (98, 99),
+            BitwiseLeftShift | BitwiseRightShift => (96, 97),
             BitwiseAnd => (13, 14),
             BitwiseOr => (11, 12),
             Plus | Minus | Period => (9, 10),
