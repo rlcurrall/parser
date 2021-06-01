@@ -48,7 +48,84 @@ impl<'p> Parser<'p> {
                 self.expect_token(TokenType::SemiColon, ";")?;
 
                 Statement::Echo(expression)
-            }
+            },
+            TokenType::While => {
+                self.expect_token(TokenType::LeftParen, "(")?;
+
+                let condition = self.parse_expression(0, None)?;
+
+                self.expect_token(TokenType::RightParen, ")")?;
+                self.expect_token(TokenType::LeftBrace, "{")?;
+
+                let mut body = Vec::new();
+                let mut did_find_right_brace = false;
+
+                loop {
+                    let next = self.lexer.next();
+
+                    match next {
+                        Some(Token {
+                            kind: TokenType::RightBrace, ..
+                        }) => {
+                            did_find_right_brace = true;
+
+                            break;
+                        }
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => {
+                            let statement = self.match_token(next.unwrap())?;
+
+                            body.push(statement);
+                        }
+                    }
+                }
+
+                if !did_find_right_brace {
+                    self.expect_token(TokenType::RightBrace, "}")?;
+                }
+
+                Statement::While { condition, body }
+            },
+            TokenType::Do => {
+                self.expect_token(TokenType::LeftBrace, "{")?;
+
+                let mut body = Vec::new();
+                let mut did_find_right_brace = false;
+
+                loop {
+                    let next = self.lexer.next();
+
+                    match next {
+                        Some(Token {
+                            kind: TokenType::RightBrace, ..
+                        }) => {
+                            did_find_right_brace = true;
+
+                            break;
+                        }
+                        None => return Err(ParserError::UnexpectedEndOfFile),
+                        _ => {
+                            let statement = self.match_token(next.unwrap())?;
+
+                            body.push(statement);
+                        }
+                    }
+                }
+
+                if !did_find_right_brace {
+                    self.expect_token(TokenType::RightBrace, "}")?;
+                }
+
+                self.expect_token(TokenType::While, "while")?;
+                self.expect_token(TokenType::LeftParen, "(")?;
+
+                let condition = self.parse_expression(0, None)?;
+
+                self.expect_token(TokenType::RightParen, ")")?;
+                self.expect_token(TokenType::SemiColon, ";")?;
+
+                Statement::DoWhile { condition, body }
+            },
             TokenType::If => {
                 self.expect_token(TokenType::LeftParen, "(")?;
 

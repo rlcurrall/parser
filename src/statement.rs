@@ -18,6 +18,14 @@ pub enum Statement {
     Property(Property),
     If(If),
     Else(Else),
+    While {
+        condition: Expression,
+        body: Vec<Statement>,
+    },
+    DoWhile {
+        condition: Expression,
+        body: Vec<Statement>
+    },
     Use(Expression),
     UseTrait(Expression),
 }
