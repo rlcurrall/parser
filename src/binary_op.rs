@@ -15,6 +15,10 @@ pub enum BinaryOp {
     BitwiseXor,
     And,
     Or,
+    LessThan,
+    GreaterThan,
+    LessThanEquals,
+    GreaterThanEquals,
 }
 
 impl From<TokenType> for BinaryOp {
@@ -34,6 +38,10 @@ impl From<TokenType> for BinaryOp {
             BitwiseXor => Self::BitwiseXor,
             And => Self::And,
             Or => Self::Or,
+            GreaterThan => Self::GreaterThan,
+            LessThan => Self::LessThan,
+            GreaterThanEquals => Self::GreaterThanEquals,
+            LessThanEquals => Self::LessThanEquals,
             _ => unreachable!(),
         }
     }

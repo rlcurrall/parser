@@ -49,7 +49,10 @@ impl Expression {
         let rhs = Box::new(rhs);
 
         match *operator {
-            Plus | Minus | Asterisk | Slash | Percent | BitwiseAnd | BitwiseOr | BitwiseLeftShift | BitwiseRightShift | BitwiseXor | And | Or => Self::Binary(lhs, BinaryOp::from(*operator), rhs),
+            Plus | Minus | Asterisk | Slash | Percent |
+            GreaterThan | GreaterThanEquals | LessThan | LessThanEquals |
+            BitwiseAnd | BitwiseOr | BitwiseLeftShift | BitwiseRightShift | BitwiseXor |
+            And | Or => Self::Binary(lhs, BinaryOp::from(*operator), rhs),
             Period => Self::Concat(lhs, rhs),
             DoubleArrow => Self::ArrayItem { key: lhs, value: rhs },
             Equals => Self::Assign(lhs, rhs),

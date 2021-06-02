@@ -610,10 +610,11 @@ impl<'p> Parser<'p> {
                         name = buffer;
                     }
 
-                    let next = self.lexer.next();
+                    let next = self.lexer.peek();
                     let mut default = None;
 
                     if matches!(next, Some(Token { kind: TokenType::Equals, .. })) {
+                        self.lexer.next();
                         default = Some(self.parse_expression(0, None)?);
                     }
 
