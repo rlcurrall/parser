@@ -5,3 +5,5 @@ if (true) {
 } else {
     echo $false;
 }
+
+echo $cool;

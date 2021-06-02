@@ -251,11 +251,15 @@ impl<'p> Parser<'p> {
                 let mut r#else = None;
 
                 loop {
-                    let next = self.lexer.next();
+                    let next = self.lexer.peek();
 
                     let next = match next {
-                        Some(_) => next.unwrap(),
-                        None => break,
+                        Some(Token { kind: TokenType::ElseIf | TokenType::Else, .. }) => {
+                            let next = self.lexer.next();
+
+                            next.unwrap()
+                        },
+                        _ => break,
                     };
 
                     match next.kind {
