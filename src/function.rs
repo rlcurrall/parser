@@ -13,11 +13,11 @@ pub enum ClosureType {
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct Function {
     pub name: Option<String>,
-    parameters: Vec<FunctionParameter>,
-    body: Vec<Statement>,
-    return_type_hint: Option<String>,
-    flags: Vec<Flag>,
-    closure_type: Option<ClosureType>,
+    pub parameters: Vec<FunctionParameter>,
+    pub body: Vec<Statement>,
+    pub return_type_hint: Option<String>,
+    pub flags: Vec<Flag>,
+    pub closure_type: Option<ClosureType>,
 }
 
 impl Function {
@@ -53,9 +53,9 @@ impl Flaggable for Function {
 
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct FunctionParameter {
-    name: String,
-    type_hint: Option<String>,
-    default: Option<Expression>,
+    pub name: String,
+    pub type_hint: Option<String>,
+    pub default: Option<Expression>,
 }
 
 impl FunctionParameter {
