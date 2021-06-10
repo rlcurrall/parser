@@ -75,12 +75,12 @@ impl<'p> Parser<'p> {
                 Statement::Echo(expression)
             },
             TokenType::While => {
-                self.expect_token(TokenType::LeftParen, "(")?;
+                self.expect_left_paren()?;
 
                 let condition = self.parse_expression(0, None)?;
 
-                self.expect_token(TokenType::RightParen, ")")?;
-                self.expect_token(TokenType::LeftBrace, "{")?;
+                self.expect_right_paren()?;
+                self.expect_left_brace()?;
 
                 let mut body = Vec::new();
                 let mut did_find_right_brace = false;
@@ -106,13 +106,13 @@ impl<'p> Parser<'p> {
                 }
 
                 if !did_find_right_brace {
-                    self.expect_token(TokenType::RightBrace, "}")?;
+                    self.expect_right_brace()?;
                 }
 
                 Statement::While { condition, body }
             },
             TokenType::Do => {
-                self.expect_token(TokenType::LeftBrace, "{")?;
+                self.expect_left_brace()?;
 
                 let mut body = Vec::new();
                 let mut did_find_right_brace = false;
@@ -138,21 +138,21 @@ impl<'p> Parser<'p> {
                 }
 
                 if !did_find_right_brace {
-                    self.expect_token(TokenType::RightBrace, "}")?;
+                    self.expect_right_brace()?;
                 }
 
                 self.expect_token(TokenType::While, "while")?;
-                self.expect_token(TokenType::LeftParen, "(")?;
+                self.expect_left_paren()?;
 
                 let condition = self.parse_expression(0, None)?;
 
-                self.expect_token(TokenType::RightParen, ")")?;
+                self.expect_right_paren()?;
                 self.expect_token(TokenType::SemiColon, ";")?;
 
                 Statement::DoWhile { condition, body }
             },
             TokenType::Foreach => {
-                self.expect_token(TokenType::LeftParen, "(")?;
+                self.expect_left_paren()?;
 
                 let left_hand = self.parse_expression(0, None)?;
 
@@ -175,8 +175,8 @@ impl<'p> Parser<'p> {
                     }
                 };
 
-                self.expect_token(TokenType::RightParen, ")")?;
-                self.expect_token(TokenType::LeftBrace, "{")?;
+                self.expect_right_paren()?;
+                self.expect_left_brace()?;
 
                 let mut body = Vec::new();
                 let mut did_find_right_brace = false;
@@ -202,7 +202,7 @@ impl<'p> Parser<'p> {
                 }
 
                 if !did_find_right_brace {
-                    self.expect_token(TokenType::RightBrace, "}")?;
+                    self.expect_right_brace()?;
                 }
 
                 Statement::Foreach {
@@ -213,12 +213,12 @@ impl<'p> Parser<'p> {
                 }
             },
             TokenType::If => {
-                self.expect_token(TokenType::LeftParen, "(")?;
+                self.expect_left_paren()?;
 
                 let condition = self.parse_expression(0, None)?;
 
-                self.expect_token(TokenType::RightParen, ")")?;
-                self.expect_token(TokenType::LeftBrace, "{")?;
+                self.expect_right_paren()?;
+                self.expect_left_brace()?;
 
                 let mut body = Vec::new();
                 let mut did_find_right_brace = false;
@@ -244,7 +244,7 @@ impl<'p> Parser<'p> {
                 }
 
                 if !did_find_right_brace {
-                    self.expect_token(TokenType::RightBrace, "}")?;
+                    self.expect_right_brace()?;
                 }
 
                 let mut else_ifs = Vec::new();
@@ -295,7 +295,7 @@ impl<'p> Parser<'p> {
                             }
 
                             if !did_find_right_brace {
-                                self.expect_token(TokenType::RightBrace, "}")?;
+                                self.expect_right_brace()?;
                             }
 
                             else_ifs.push(Statement::ElseIf(If::new(condition, body, Vec::new(), None)))
@@ -316,7 +316,7 @@ impl<'p> Parser<'p> {
                                 None => return Err(ParserError::UnexpectedEndOfFile),
                             };
 
-                            self.expect_token(TokenType::LeftBrace, "{")?;
+                            self.expect_left_brace()?;
 
                             let mut body = Vec::new();
                             let mut did_find_right_brace = false;
@@ -342,7 +342,7 @@ impl<'p> Parser<'p> {
                             }
 
                             if !did_find_right_brace {
-                                self.expect_token(TokenType::RightBrace, "}")?;
+                                self.expect_right_brace()?;
                             }
 
                             if else_if {
@@ -558,7 +558,7 @@ impl<'p> Parser<'p> {
             TokenType::Function => {
                 let identifier = self.expect_token(TokenType::Identifier, "")?;
 
-                self.expect_token(TokenType::LeftParen, "(")?;
+                self.expect_left_paren()?;
 
                 let mut parameters: Vec<FunctionParameter> = Vec::new();
 
@@ -633,7 +633,7 @@ impl<'p> Parser<'p> {
 
                     return_type_hint = Some(return_type_token.slice.to_string());
 
-                    self.expect_token(TokenType::LeftBrace, "{")?;
+                    self.expect_left_brace()?;
                 } else if next.is_some()
                     && !matches!(
                         next,
@@ -764,7 +764,7 @@ impl<'p> Parser<'p> {
                 expression
             },
             TokenType::ShortFunction => {
-                self.expect_token(TokenType::LeftParen, "(")?;
+                self.expect_left_paren()?;
 
                 let mut parameters: Vec<FunctionParameter> = Vec::new();
 
@@ -874,7 +874,7 @@ impl<'p> Parser<'p> {
                 ))
             },
             TokenType::Function => {
-                self.expect_token(TokenType::LeftParen, "(")?;
+                self.expect_left_paren()?;
 
                 let mut parameters: Vec<FunctionParameter> = Vec::new();
 
@@ -952,7 +952,7 @@ impl<'p> Parser<'p> {
 
                     return_type_hint = Some(return_type_token.slice.to_string());
 
-                    self.expect_token(TokenType::LeftBrace, "{")?;
+                    self.expect_left_brace()?;
                 } else if next.is_some()
                     && !matches!(
                         next,
@@ -1015,7 +1015,7 @@ impl<'p> Parser<'p> {
             TokenType::LeftParen => {
                 let expression = self.parse_expression(0, None)?;
 
-                self.expect_token(TokenType::RightParen, ")")?;
+                self.expect_right_paren()?;
 
                 expression
             },
